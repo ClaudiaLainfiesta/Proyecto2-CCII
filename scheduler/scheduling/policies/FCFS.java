@@ -4,7 +4,6 @@
 ** Carnet: 24000149
 ** Seccion: BN
 **/
-//me dare de baja el otro año 
 /*Descripcion: */
 package scheduler.scheduling.policies;
 
