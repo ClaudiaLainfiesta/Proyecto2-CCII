@@ -4,7 +4,6 @@
         debe calendarizar los procesos. Todas las clases 
         que representen tipos de politica de calendarizacion deben heredar de esta clase
 
-		// el otro año me dare de b
 	@author Ing. Andrea Quan
 **/
 	
