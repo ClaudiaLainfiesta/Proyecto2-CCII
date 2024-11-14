@@ -1,5 +1,7 @@
 
+
 import scheduler.scheduling.policies.FCFS;
+import scheduler.scheduling.policies.PP;
 
 public class ProcessScheduler {
     public static void main(String[] args){
@@ -26,12 +28,14 @@ public class ProcessScheduler {
             if (politica.equals("-fcfs")) {
                 System.out.println("----------Iniciando Proceso First-Come First-Served----------");
                 FCFS procesoRequerido = new FCFS(primeraParte, segundaParte, arith, io, cond, loop);
-                procesoRequerido.ejecucion();
+                procesoRequerido.ejecucionSimple();
 
             } else if (politica.equals("-lcfs")) {
                 System.out.println("----------Iniciando Proceso Last-Come First-Served----------");
             } else if (politica.equals("-pp")) {
                 System.out.println("----------Iniciando Proceso Priority Policy----------");
+                PP procesoRequerido = new PP(arith, io, cond, loop);
+                procesoRequerido.ejecucion();
             } else {
                 System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
             }

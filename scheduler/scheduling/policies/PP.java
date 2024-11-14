@@ -7,12 +7,10 @@
 /*Descripcion */
 package scheduler.scheduling.policies;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import scheduler.processing.SimpleProcess;
-import scheduler.scheduling.Policy;
-import scheduler.scheduling.Enqueable;
 import java.util.Random;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import scheduler.processing.*;
+
 
 public class PP extends Policy implements Enqueable {
     private final ConcurrentLinkedQueue<SimpleProcess> colaPrioridad1; // IOProcess
