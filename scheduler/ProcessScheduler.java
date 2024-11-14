@@ -1,6 +1,5 @@
 
 
-import scheduler.scheduling.policies.FCFS;
 import scheduler.scheduling.policies.PP;
 
 public class ProcessScheduler {
@@ -27,13 +26,13 @@ public class ProcessScheduler {
             System.out.println("Tiempo de proceso iterativo (loop): " + loop);
             if (politica.equals("-fcfs")) {
                 System.out.println("----------Iniciando Proceso First-Come First-Served----------");
-                FCFS procesoRequerido = new FCFS(primeraParte, segundaParte, arith, io, cond, loop);
-                procesoRequerido.ejecucionSimple();
+                //FCFS procesoRequerido = new FCFS(primeraParte, segundaParte, arith, io, cond, loop);
+                //procesoRequerido.ejecucionSimple();
                 try {
                     while(true) {
                         String input = new java.util.Scanner(System.in).nextLine();
                         if (input.equals("q")) {
-                            procesoRequerido.detenerSimulacion();
+                            //procesoRequerido.detenerSimulacion();
                             break;
                         }
                     }
@@ -45,7 +44,7 @@ public class ProcessScheduler {
                 System.out.println("----------Iniciando Proceso Last-Come First-Served----------");
             } else if (politica.equals("-pp")) {
                 System.out.println("----------Iniciando Proceso Priority Policy----------");
-                PP procesoRequerido = new PP(arith, io, cond, loop);
+                PP procesoRequerido = new PP(primeraParte, segundaParte, arith, io, cond, loop);
                 procesoRequerido.ejecucion();
             } else {
                 System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");

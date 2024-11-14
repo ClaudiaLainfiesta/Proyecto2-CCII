@@ -4,15 +4,12 @@
 **Carnet: 24003171
 **Seccion: BN
 **/
-/*Descripcion */
+/*Descripcion: */
 package scheduler.scheduling.policies;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import scheduler.processing.SimpleProcess;
-import scheduler.scheduling.Policy;
-import scheduler.scheduling.Enqueable;
 import java.util.Random;
-import scheduler.processing.*;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import scheduler.processing.*;
 
 public class PP extends Policy implements Enqueable {
     private final ConcurrentLinkedQueue<SimpleProcess> colaPrioridad1; // IOProcess
@@ -23,8 +20,10 @@ public class PP extends Policy implements Enqueable {
     private final double ioTime;
     private final double condTime;
     private final double loopTime;
+    private double tiempoMinimo;
+    private double tiempoMaximo;
 
-    public PP(double arithTime, double ioTime, double condTime, double loopTime) {
+    public PP(double tiempoMinimo, double tiempoMaximo, double arithTime, double ioTime, double condTime, double loopTime) {
         super();
         this.colaPrioridad1 = new ConcurrentLinkedQueue<>();
         this.colaPrioridad2 = new ConcurrentLinkedQueue<>();
@@ -33,6 +32,8 @@ public class PP extends Policy implements Enqueable {
         this.ioTime = ioTime;
         this.condTime = condTime;
         this.loopTime = loopTime;
+        this.tiempoMinimo = tiempoMinimo;
+        this.tiempoMaximo = tiempoMaximo;
     }
 
     @Override
@@ -76,19 +77,13 @@ public class PP extends Policy implements Enqueable {
         System.out.println("Iniciando simulación con política de Prioridad...");
 
         // Solicitar tiempo o rango de tiempo para la creación de nuevos procesos
-        System.out.print("Ingrese el tiempo mínimo para la creación de un nuevo proceso (en milisegundos): ");
-        long tiempoMinimo = scanner.nextLong();
-        System.out.print("Ingrese el tiempo máximo para la creación de un nuevo proceso (en milisegundos): ");
-        long tiempoMaximo = scanner.nextLong();
+        long tiempoMaximoLong = (long)(this.tiempoMaximo);
+        long tiempoMinimoLong = (long)(this.tiempoMinimo);
 
-        if (tiempoMinimo > tiempoMaximo) {
-            System.out.println("El tiempo mínimo no puede ser mayor que el máximo. Intente nuevamente.");
-            return;
-        }
 
         int tiempoTranscurrido = 0;
         int id = 0;
-        long tiempoParaNuevoProceso = tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
+        long tiempoParaNuevoProceso = tiempoMinimoLong + (long)(Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
 
         while (true) {
             System.out.println("Tiempo transcurrido: " + tiempoTranscurrido + " ms");
@@ -99,7 +94,7 @@ public class PP extends Policy implements Enqueable {
                 add(nuevoProceso);
                 System.out.println("Proceso agregado: ID " + nuevoProceso.getId() + ", tipo: " + nuevoProceso.getClass().getSimpleName());
 
-                tiempoParaNuevoProceso = tiempoTranscurrido + tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
+                tiempoParaNuevoProceso = tiempoTranscurrido + tiempoMinimoLong + (long)(Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
             }
 
             atenderProcesos();
