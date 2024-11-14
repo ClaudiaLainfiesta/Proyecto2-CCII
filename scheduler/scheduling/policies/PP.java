@@ -14,9 +14,9 @@ import scheduler.scheduling.Enqueable;
 
 public class PP extends Policy implements Enqueable {
 
-    private ConcurrentLinkedQueue<SimpleProcess> priority1Queue; // Para Input/Output (mayor prioridad)
-    private ConcurrentLinkedQueue<SimpleProcess> priority2Queue; // Para Aritmetico (prioridad media)
-    private ConcurrentLinkedQueue<SimpleProcess> priority3Queue; // Para Condicional e Iterativo (prioridad baja)
+    private ConcurrentLinkedQueue<SimpleProcess> priority1Queue; 
+    private ConcurrentLinkedQueue<SimpleProcess> priority2Queue; 
+    private ConcurrentLinkedQueue<SimpleProcess> priority3Queue; 
 
     public PP() {
         priority1Queue = new ConcurrentLinkedQueue<>();
