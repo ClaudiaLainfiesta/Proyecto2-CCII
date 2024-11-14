@@ -6,19 +6,19 @@
 **/
 /*Descripcion */
 package scheduler.scheduling.policies;
-/*Hola prueba de repo */
 import java.util.concurrent.ConcurrentLinkedQueue;
 import scheduler.processing.SimpleProcess;
 import scheduler.scheduling.Policy;
 import scheduler.scheduling.Enqueable;
 import java.util.Random;
 import scheduler.processing.*;
+import java.util.Scanner;
 
 public class PP extends Policy implements Enqueable {
     private final ConcurrentLinkedQueue<SimpleProcess> colaPrioridad1; // IOProcess
     private final ConcurrentLinkedQueue<SimpleProcess> colaPrioridad2; // ArithmeticProcess
     private final ConcurrentLinkedQueue<SimpleProcess> colaPrioridad3; // ConditionalProcess y LoopProcess
-    
+
     private final double arithTime;
     private final double ioTime;
     private final double condTime;
@@ -72,12 +72,23 @@ public class PP extends Policy implements Enqueable {
     }
 
     public void ejecucion() {
+        Scanner scanner = new Scanner(System.in);
         System.out.println("Iniciando simulación con política de Prioridad...");
-        Random random = new Random();
+
+        // Solicitar tiempo o rango de tiempo para la creación de nuevos procesos
+        System.out.print("Ingrese el tiempo mínimo para la creación de un nuevo proceso (en milisegundos): ");
+        long tiempoMinimo = scanner.nextLong();
+        System.out.print("Ingrese el tiempo máximo para la creación de un nuevo proceso (en milisegundos): ");
+        long tiempoMaximo = scanner.nextLong();
+
+        if (tiempoMinimo > tiempoMaximo) {
+            System.out.println("El tiempo mínimo no puede ser mayor que el máximo. Intente nuevamente.");
+            return;
+        }
+
         int tiempoTranscurrido = 0;
         int id = 0;
-
-        double tiempoParaNuevoProceso = random.nextDouble(500) + 500;
+        long tiempoParaNuevoProceso = tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
 
         while (true) {
             System.out.println("Tiempo transcurrido: " + tiempoTranscurrido + " ms");
@@ -88,7 +99,7 @@ public class PP extends Policy implements Enqueable {
                 add(nuevoProceso);
                 System.out.println("Proceso agregado: ID " + nuevoProceso.getId() + ", tipo: " + nuevoProceso.getClass().getSimpleName());
 
-                tiempoParaNuevoProceso = tiempoTranscurrido + random.nextDouble(500) + 500;
+                tiempoParaNuevoProceso = tiempoTranscurrido + tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
             }
 
             atenderProcesos();
