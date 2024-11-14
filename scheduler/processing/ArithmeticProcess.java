@@ -1,4 +1,4 @@
-/*FCFS.java */
+/*ArithmeticProcess.java */
 /**
 ** Hecho por:
 ** Carnet:
@@ -9,9 +9,13 @@
 package scheduler.processing;
 
 public class ArithmeticProcess extends SimpleProcess{
-    
-    public ArithmeticProcess(int id) {
+    protected static Double tiempoServicio;
+    public ArithmeticProcess(int id, Double tiempoServicio) {
         super(id);
+        this.tiempoServicio = tiempoServicio;
     }
-    
+    public Double getTiempoServicio(){
+        return this.tiempoServicio;
+    }
+
 }

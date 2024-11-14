@@ -1,4 +1,4 @@
-/*FCFS.java */
+/*LoopProcess.java */
 /**
 ** Hecho por:
 ** Carnet:
@@ -9,9 +9,13 @@
 package scheduler.processing;
 
 public class LoopProcess extends SimpleProcess{
-    
-    public LoopProcess(int id) {
+    protected static Double tiempoServicio;
+    public LoopProcess(int id, Double tiempoServicio) {
         super(id);
+        this.tiempoServicio = tiempoServicio;
     }
-    
+    public Double getTiempoServicio(){
+        return this.tiempoServicio;
+    }
+
 }

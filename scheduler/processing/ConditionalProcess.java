@@ -1,4 +1,4 @@
-/*FCFS.java */
+/*ConditionalProcess.java */
 /**
 ** Hecho por:
 ** Carnet:
@@ -9,9 +9,14 @@
 package scheduler.processing;
 
 public class ConditionalProcess extends SimpleProcess{
-    
-    public ConditionalProcess(int id) {
+    protected static Double tiempoServicio;
+    public ConditionalProcess(int id, Double tiempoServicio) {
         super(id);
+        this.tiempoServicio = tiempoServicio;
     }
+    public Double getTiempoServicio(){
+        return this.tiempoServicio;
+    }
+
     
 }

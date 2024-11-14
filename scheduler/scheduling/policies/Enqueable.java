@@ -7,7 +7,7 @@
 	
 package scheduler.scheduling.policies;
 
-import scheduler.processing.SimpleProcess;
+import scheduler.processing.*;
 	
 public interface Enqueable {
 	/** ingresa un proceso a la cola de procesos de la politica
