@@ -29,6 +29,17 @@ public class ProcessScheduler {
                 System.out.println("----------Iniciando Proceso First-Come First-Served----------");
                 FCFS procesoRequerido = new FCFS(primeraParte, segundaParte, arith, io, cond, loop);
                 procesoRequerido.ejecucionSimple();
+                try {
+                    while(true) {
+                        String input = new java.util.Scanner(System.in).nextLine();
+                        if (input.equals("q")) {
+                            procesoRequerido.detenerSimulacion();
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
             } else if (politica.equals("-lcfs")) {
                 System.out.println("----------Iniciando Proceso Last-Come First-Served----------");

@@ -1,20 +1,12 @@
-/*FCFS.java */
-/**
-** Hecho por: María Claudia Lainfiesta Herrera
-** Carnet: 24000149
-** Seccion: BN
-**/
-/*Descripcion: */
 package scheduler.scheduling.policies;
 
 import java.util.Random;
-import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.TimeUnit;
 import scheduler.processing.*;
 
-
 public class FCFS extends Policy implements Enqueable {
+    // Cola de procesos
     protected ConcurrentLinkedQueue<SimpleProcess> cola;
     protected int size;
     protected int totalProcesses;
@@ -24,10 +16,9 @@ public class FCFS extends Policy implements Enqueable {
     protected Double io;
     protected Double cont;
     protected Double loop;
-    private static int idCounter = 1;
-    
-    private int totalAtendidos = 0; // Contador de procesos atendidos
-    private long totalTime = 0; // Suma total de los tiempos de atención
+
+    // Contadores de procesos
+    protected int procesosAtendidos;
 
     public FCFS(Double primeraParte, Double segundaParte, Double arith, Double io, Double cont, Double loop) {
         super();
@@ -38,176 +29,162 @@ public class FCFS extends Policy implements Enqueable {
         this.io = io;
         this.cont = cont;
         this.loop = loop;
+        this.procesosAtendidos = 0;
     }
 
+    // Enqueable: Agregar proceso
     @Override
     public void add(SimpleProcess P) {
         this.cola.add(P);
         this.size++;
         this.totalProcesses++;
-        imprimirEstado();
     }
 
+    // Enqueable: Eliminar proceso
     @Override
     public void remove() {
         this.cola.poll();
         this.size--;
-        imprimirEstado();
     }
 
+    // Enqueable: Obtener siguiente proceso
     @Override
     public SimpleProcess next() {
         return this.cola.peek();
     }
 
+    // Método para ejecutar la simulación
     public void ejecucionSimple() {
-        Scanner scanner = new Scanner(System.in);
-        AtomicBoolean continuar = new AtomicBoolean(true); // Usamos AtomicBoolean para cambiar su valor
+        Random rand = new Random();
+        
+        // Hilo para la generación de procesos
+        Thread generacionThread = new Thread(() -> {
+            int idProceso = 0;
+            try {
+                while (true) {
+                    // Escoger un rango de tiempo aleatorio entre 1 y 3 segundos para la simulación
+                    int tiempoEspera = rand.nextInt(3) + 1;
 
-        // Hilo para agregar procesos aleatorios
-        Thread generador = new Thread(() -> {
-            Random random = new Random();
-            while (continuar.get()) { // Mientras continuar sea true
-                try {
-                    long tiempoEspera = (long) (primeraParte * 1000 + random.nextDouble() * (segundaParte - primeraParte) * 1000);
-                    Thread.sleep(tiempoEspera);
+                    // Pausa entre las iteraciones para simular el tiempo de espera
+                    TimeUnit.SECONDS.sleep(tiempoEspera);
 
-                    // Crear y agregar un nuevo proceso
-                    SimpleProcess nuevoProceso = generarProcesoAleatorioConId();
-                    add(nuevoProceso);
-                    imprimirEstado(); // Mostrar estado después de agregar un proceso
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    // Crear un proceso aleatorio con un ID correlativo
+                    idProceso += 1;
+                    SimpleProcess proceso = generarProcesoAleatorio(idProceso);
+                    add(proceso); // Agregar el proceso a la cola
+
+                    // Mostrar la información de la cola y los procesos
+                    mostrarInformacion();
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
 
-        // Hilo para procesar los procesos
-        Thread procesador = new Thread(() -> {
-            while (continuar.get()) { // Mientras continuar sea true
-                SimpleProcess proceso = cola.poll();
-                if (proceso != null) {
-                    Double tiempoAtencion = 0.0;
-
-                    if (proceso instanceof ArithmeticProcess) {
-                        tiempoAtencion = ((ArithmeticProcess) proceso).getTiempoServicio();
-                    } else if (proceso instanceof IOProcess) {
-                        tiempoAtencion = ((IOProcess) proceso).getTiempoServicio();
-                    } else if (proceso instanceof ConditionalProcess) {
-                        tiempoAtencion = ((ConditionalProcess) proceso).getTiempoServicio();
-                    } else if (proceso instanceof LoopProcess) {
-                        tiempoAtencion = ((LoopProcess) proceso).getTiempoServicio();
-                    }
-
-                    long tiempoAtencionMs = tiempoAtencion.longValue();
-
-                    try {
-                        System.out.println("Atendiendo proceso con ID " + proceso.getId() + " por " + tiempoAtencionMs + " ms");
-                        Thread.sleep(tiempoAtencionMs);
-                        totalAtendidos++;
-                        totalTime += tiempoAtencionMs;
-                        System.out.println("Proceso con ID " + proceso.getId() + " terminado.");
-                        imprimirEstado(); // Mostrar el estado después de procesar un proceso
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+        // Hilo para la atención de los procesos
+        Thread atencionThread = new Thread(() -> {
+            try {
+                while (true) {
+                    // Si hay procesos en la cola, atenderlos
+                    if (!cola.isEmpty()) {
+                        SimpleProcess procesoAtendido = next();
+                        atenderProceso(procesoAtendido);
+                    } else {
+                        // Si no hay procesos en la cola, esperar un poco antes de volver a intentar
+                        TimeUnit.SECONDS.sleep(1);
                     }
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         });
 
-        // Hilo para escuchar la entrada del usuario
-        Thread listener = new Thread(() -> {
-            while (continuar.get()) {
-                String input = scanner.nextLine();
-                if (input.equalsIgnoreCase("q")) {
-                    System.out.println("Finalizando programa...");
-                    continuar.set(false); // Cambiar el valor de continuar a false
-                    generador.interrupt();
-                    procesador.interrupt();
-                }
-            }
-            scanner.close();
-        });
-
-        // Iniciar los hilos
-        generador.start();
-        procesador.start();
-        listener.start();
+        // Iniciar ambos hilos
+        generacionThread.start();
+        atencionThread.start();
     }
 
-    private SimpleProcess generarProcesoAleatorioConId() {
-        Random random = new Random();
-        int tipo = random.nextInt(4);
-        SimpleProcess proceso;
+    // Generar proceso aleatorio de uno de los 4 tipos con ID correlativo
+    private SimpleProcess generarProcesoAleatorio(int id) {
+        Random rand = new Random();
+        int tipo = rand.nextInt(4); // 4 tipos de procesos: Aritmetico, IO, Condicional, Iterativo
 
-        synchronized (FCFS.class) {
-            int currentId = idCounter++;
-            switch (tipo) {
-                case 0:
-                    proceso = new ArithmeticProcess(currentId, arith);
-                    break;
-                case 1:
-                    proceso = new IOProcess(currentId, io);
-                    break;
-                case 2:
-                    proceso = new ConditionalProcess(currentId, cont);
-                    break;
-                case 3:
-                    proceso = new LoopProcess(currentId, loop);
-                    break;
-                default:
-                    throw new IllegalStateException("Tipo de proceso no válido");
-            }
+        switch (tipo) {
+            case 0:
+                SimpleProcess proceso = new ArithmeticProcess(id, arith);
+                break;
+            case 1:
+                 SimpleProcess proceso = new IOProcess(id, io);
+                break;
+            case 2:
+                SimpleProcess proceso = new ConditionalProcess(id, cont);
+                break;
+            default:
+                SimpleProcess proceso = new LoopProcess(id, loop);
+                break;
         }
-
         return proceso;
     }
 
-    // Imprimir estado de la cola y procesos
-    private void imprimirEstado() {
-        System.out.println("La cola de procesos:");
-        for (SimpleProcess proceso : cola) {
-            String tipo = "";
-            Double tiempoAtencion = 0.0;
-            if (proceso instanceof ArithmeticProcess) {
-                tiempoAtencion = ((ArithmeticProcess) proceso).getTiempoServicio();
-                tipo = "A";
-            } else if (proceso instanceof IOProcess) {
-                tiempoAtencion = ((IOProcess) proceso).getTiempoServicio();
-                tipo = "IO";
-            } else if (proceso instanceof ConditionalProcess) {
-                tiempoAtencion = ((ConditionalProcess) proceso).getTiempoServicio();
-                tipo = "C";
-            } else if (proceso instanceof LoopProcess) {
-                tiempoAtencion = ((LoopProcess) proceso).getTiempoServicio();
-                tipo = "L";
-            }
-            System.out.println("ID: " + proceso.getId() + ", Tipo: " + tipo + ", Tiempo de atención: " + tiempoAtencion + " ms");
-        }
+    // Atender proceso
+    private void atenderProceso(SimpleProcess proceso) throws InterruptedException {
+        // Simulamos el tiempo de atención del proceso
+        Double tiempoAtencion = casting(proceso);
 
-        // Mostrar proceso en ejecución
-        SimpleProcess procesoEnEjecucion = next();
-        if (procesoEnEjecucion != null) {
-            System.out.println("Proceso en ejecución: " + procesoEnEjecucion);
-        }
+        System.out.println("Atendiendo proceso ID: " + proceso.getId() + " Tipo: PENDIENTE" + " Tiempo de atención: " + tiempoAtencion + " segundos.");
 
-        // Mostrar política y estadísticas
-        System.out.println("Política utilizada: FCFS");
-        System.out.println("Número de procesos atendidos: " + totalAtendidos);
-        System.out.println("----------------------------");
+        // El proceso se atiende durante su tiempo de atención
+        long tiempoAtencionFinal = (long)(tiempoAtencion * 1000);
+        Thread.sleep(tiempoAtencionFinal);
+
+        // Se ha terminado de atender el proceso
+        remove(); // Se elimina el proceso de la cola
+        procesosAtendidos++;
+
+        // Mostrar la información después de atender un proceso
+        mostrarInformacion();
     }
 
-    private void terminarSimulacion() {
-        // Información final
-        System.out.println("\nSimulación terminada.");
-        System.out.println("Procesos atendidos: " + totalAtendidos);
-        System.out.println("Procesos restantes en cola: " + cola.size());
-        if (totalAtendidos > 0) {
-            System.out.println("Tiempo promedio de atención por proceso: " + (totalTime / totalAtendidos) + " ms");
-        }
+    // Mostrar la información en la consola
+    private void mostrarInformacion() {
+        System.out.println("\n--- Estado Actual ---");
+        // Mostrar la cola
+        System.out.println("Cola de procesos: ");
+        cola.forEach(proceso -> {
+            Double tiempoAtencion = casting(proceso);
+            System.out.println("ID: " + proceso.getId() + " Tipo: PENDIENTE" + " Tiempo de atención: " + tiempoAtencion);
+        });
+
+        // Mostrar los procesos atendidos
+        System.out.println("\nProcesos atendidos: " + procesosAtendidos);
+        System.out.println("Total de procesos: " + totalProcesses);
+    }
+
+    // Método para finalizar la simulación
+    public void detenerSimulacion() {
+        System.out.println("\nSimulación detenida.");
+        System.out.println("Procesos atendidos: " + procesosAtendidos);
+        System.out.println("Procesos en cola: " + size);
+        System.out.println("Promedio de atención por proceso: " + calcularPromedioAtencion());
         System.out.println("Política utilizada: FCFS");
-        System.exit(0); // Salir del programa
+    }
+
+    // Calcular el promedio de tiempo de atención por proceso
+    private double calcularPromedioAtencion() {
+        return (double) procesosAtendidos / totalProcesses;
+    }
+
+    private double casting(SimpleProcess proceso){
+        Double tiempoServicio = 0.0;
+        if(proceso instanceof ArithmeticProcess){
+            tiempoServicio = ((ArithmeticProcess) proceso).getTiempoServicio();
+        } else if(proceso instanceof IOProcess){
+            tiempoServicio = ((IOProcess) proceso).getTiempoServicio();
+        } else if(proceso instanceof ConditionalProcess){
+            tiempoServicio = ((ConditionalProcess) proceso).getTiempoServicio();
+        } else if(proceso instanceof LoopProcess){
+            tiempoServicio = ((LoopProcess) proceso).getTiempoServicio();
+        }
+        return tiempoServicio;
     }
 }
-
-
