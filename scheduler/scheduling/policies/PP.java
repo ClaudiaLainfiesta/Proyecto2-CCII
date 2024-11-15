@@ -1,9 +1,9 @@
 package scheduler.scheduling.policies;
 
+import scheduler.processing.*;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import scheduler.processing.*;
 
 public class PP extends Policy implements Enqueable {
     private final ConcurrentLinkedQueue<SimpleProcess> colaPrioridad1; // IOProcess
@@ -14,9 +14,9 @@ public class PP extends Policy implements Enqueable {
     private final double ioTime;
     private final double condTime;
     private final double loopTime;
-    private double tiempoMinimo;
-    private double tiempoMaximo;
-    private volatile boolean ejecutar; // Variable para controlar la ejecución de la simulación
+    private final double tiempoMinimo;
+    private final double tiempoMaximo;
+    private volatile boolean ejecutar; // Controla la ejecución del bucle principal
 
     public PP(double tiempoMinimo, double tiempoMaximo, double arithTime, double ioTime, double condTime, double loopTime) {
         super();
@@ -72,57 +72,49 @@ public class PP extends Policy implements Enqueable {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Iniciando simulación con política de Prioridad...");
 
-        // Proceso para interrumpir con Q
-        Thread listener = new Thread(() -> {
-            System.out.println("Presione 'Q' para detener la simulación.");
+        // Crear un hilo separado para agregar nuevos procesos
+        Thread hiloAgregar = new Thread(() -> {
+            Random random = new Random();
+            int id = 0;
+            long tiempoParaNuevoProceso = tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
+
             while (ejecutar) {
-                String input = scanner.nextLine();
-                if (input.equalsIgnoreCase("Q")) {
-                    ejecutar = false;
-                    System.out.println("Deteniendo la simulación...");
+                try {
+                    Thread.sleep(tiempoParaNuevoProceso); // Esperar el tiempo para el nuevo proceso
+                    id++;
+                    SimpleProcess nuevoProceso = generarProcesoAleatorio(id);
+                    add(nuevoProceso);
+                    System.out.println("Proceso agregado: ID " + nuevoProceso.getId() + ", tipo: " + nuevoProceso.getClass().getSimpleName());
+                    
+                    tiempoParaNuevoProceso = tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("Hilo de agregar procesos interrumpido.");
                 }
             }
         });
 
-        listener.start(); 
+        // Iniciar el hilo para agregar procesos
+        hiloAgregar.start();
 
-        long tiempoMaximoLong = (long) (this.tiempoMaximo);
-        long tiempoMinimoLong = (long) (this.tiempoMinimo);
-
-        int tiempoTranscurrido = 0;
-        int id = 0;
-        long tiempoParaNuevoProceso = tiempoMinimoLong + (long) (Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
-
+        // Bucle principal para atender procesos
         while (ejecutar) {
-            System.out.println("Tiempo transcurrido: " + tiempoTranscurrido + " ms");
-
-            if (tiempoTranscurrido >= tiempoParaNuevoProceso) {
-                id++;
-                SimpleProcess nuevoProceso = generarProcesoAleatorio(id);
-                add(nuevoProceso);
-                System.out.println("Proceso agregado: ID " + nuevoProceso.getId() + ", tipo: " + nuevoProceso.getClass().getSimpleName());
-
-                tiempoParaNuevoProceso = tiempoTranscurrido + tiempoMinimoLong + (long) (Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
-            }
-
+            System.out.println("Atendiendo procesos...");
             atenderProcesos();
-            tiempoTranscurrido += 100;
-
             try {
-                Thread.sleep(100); // Simular un intervalo de tiempo
+                Thread.sleep(100); // Pausa entre atenciones para simular tiempo de procesamiento
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                e.printStackTrace();
+                System.out.println("Bucle de atención interrumpido.");
             }
         }
 
+        // Finalizar el hilo de agregar procesos si se detiene el programa
         try {
-            listener.join(); // Esperar a que el hilo de escucha termine
+            hiloAgregar.join();
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            e.printStackTrace();
+            System.out.println("Error al esperar la finalización del hilo de agregar.");
         }
-
         System.out.println("Simulación finalizada.");
     }
 
@@ -184,5 +176,9 @@ public class PP extends Policy implements Enqueable {
         } else {
             return 3; // ConditionalProcess y LoopProcess
         }
+    }
+
+    public void detener() {
+        ejecutar = false; // Detiene ambos hilos
     }
 }
