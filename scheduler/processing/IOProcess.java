@@ -17,5 +17,11 @@ public class IOProcess extends SimpleProcess{
     public Double getTiempoServicio(){
         return this.tiempoServicio;
     }
-
+    public String getTipo(){
+        return "IO";
+    }
+    @Override
+    public String toString(){
+        return "[ID:" + this.id + " | Tiempo de Atencion: " + this.tiempoServicio + " | Tipo: " + getTipo() + "]";
+    }
 }

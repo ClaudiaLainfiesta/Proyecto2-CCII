@@ -1,6 +1,7 @@
 
 
 import scheduler.scheduling.policies.PP;
+import scheduler.scheduling.policies.FCFS;
 
 public class ProcessScheduler {
     public static void main(String[] args){
@@ -26,19 +27,8 @@ public class ProcessScheduler {
             System.out.println("Tiempo de proceso iterativo (loop): " + loop);
             if (politica.equals("-fcfs")) {
                 System.out.println("----------Iniciando Proceso First-Come First-Served----------");
-                //FCFS procesoRequerido = new FCFS(primeraParte, segundaParte, arith, io, cond, loop);
-                //procesoRequerido.ejecucionSimple();
-                try {
-                    while(true) {
-                        String input = new java.util.Scanner(System.in).nextLine();
-                        if (input.equals("q")) {
-                            //procesoRequerido.detenerSimulacion();
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                FCFS procesoRequerido = new FCFS(primeraParte, segundaParte, arith, io, cond, loop);
+                procesoRequerido.ejecucionSimple();
 
             } else if (politica.equals("-lcfs")) {
                 System.out.println("----------Iniciando Proceso Last-Come First-Served----------");

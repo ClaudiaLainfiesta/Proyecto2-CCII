@@ -1,12 +1,20 @@
+/*ArithmeticProcess.java */
+/**
+** Hecho por: Maria Claudia Lainfiesta Herrera
+** Carnet: 24000149
+** Seccion: BN
+**/
+/*Descripcion: Clase que realiza la política First Come First Served */
+
 package scheduler.scheduling.policies;
 
 import java.util.Random;
+import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
+
 import scheduler.processing.*;
 
 public class FCFS extends Policy implements Enqueable {
-    // Cola de procesos
     protected ConcurrentLinkedQueue<SimpleProcess> cola;
     protected int size;
     protected int totalProcesses;
@@ -16,9 +24,10 @@ public class FCFS extends Policy implements Enqueable {
     protected Double io;
     protected Double cont;
     protected Double loop;
-
-    // Contadores de procesos
     protected int procesosAtendidos;
+    private boolean running;
+
+    private static int idGeneradoGlobal = 0;
 
     public FCFS(Double primeraParte, Double segundaParte, Double arith, Double io, Double cont, Double loop) {
         super();
@@ -30,161 +39,287 @@ public class FCFS extends Policy implements Enqueable {
         this.cont = cont;
         this.loop = loop;
         this.procesosAtendidos = 0;
-    }
 
-    // Enqueable: Agregar proceso
+        this.running = true;
+    }
     @Override
     public void add(SimpleProcess P) {
         this.cola.add(P);
         this.size++;
         this.totalProcesses++;
     }
-
-    // Enqueable: Eliminar proceso
     @Override
     public void remove() {
         this.cola.poll();
         this.size--;
     }
-
-    // Enqueable: Obtener siguiente proceso
     @Override
     public SimpleProcess next() {
         return this.cola.peek();
     }
 
-    // Método para ejecutar la simulación
     public void ejecucionSimple() {
-        Random rand = new Random();
-        
-        // Hilo para la generación de procesos
-        Thread generacionThread = new Thread(() -> {
-            int idProceso = 0;
-            try {
-                while (true) {
-                    // Escoger un rango de tiempo aleatorio entre 1 y 3 segundos para la simulación
-                    int tiempoEspera = rand.nextInt(3) + 1;
-
-                    // Pausa entre las iteraciones para simular el tiempo de espera
-                    TimeUnit.SECONDS.sleep(tiempoEspera);
-
-                    // Crear un proceso aleatorio con un ID correlativo
-                    idProceso += 1;
-                    SimpleProcess proceso = generarProcesoAleatorio(idProceso);
-                    add(proceso); // Agregar el proceso a la cola
-
-                    // Mostrar la información de la cola y los procesos
-                    mostrarInformacion();
+        Thread generacionProcesos = new Thread(() -> {
+            int idGenerado = 0;
+            while (running) {
+                Random randTiempo = new Random();
+                Random randProceso = new Random();
+                long primeraParteLong = (long) (primeraParte * 1000);
+                long segundaParteLong = (long) (segundaParte * 1000);
+                long tiempoRandomLong = primeraParteLong + randTiempo.nextLong() % (segundaParteLong - primeraParteLong + 1);
+                try {
+                    Thread.sleep(tiempoRandomLong);
+                } catch (Exception e) {
+                    System.out.println("Proceso interrumpido");
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                int procesoEleccion = randProceso.nextInt(4);
+                idGenerado++;
+                SimpleProcess procesoGenerado = null;
+                if (procesoEleccion == 0) {
+                    procesoGenerado = new ArithmeticProcess(idGenerado, this.arith);
+                } else if (procesoEleccion == 1) {
+                    procesoGenerado = new IOProcess(idGenerado, this.io);
+                } else if (procesoEleccion == 2) {
+                    procesoGenerado = new ConditionalProcess(idGenerado, this.cont);
+                } else if (procesoEleccion == 3) {
+                    procesoGenerado = new LoopProcess(idGenerado, this.loop);
+                }
+                String tipoProceso = castingTipo(procesoGenerado);
+                add(procesoGenerado);
+                System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProceso);
+                imprimirCola();
             }
         });
 
-        // Hilo para la atención de los procesos
-        Thread atencionThread = new Thread(() -> {
-            try {
-                while (true) {
-                    // Si hay procesos en la cola, atenderlos
-                    if (!cola.isEmpty()) {
-                        SimpleProcess procesoAtendido = next();
-                        atenderProceso(procesoAtendido);
-                    } else {
-                        // Si no hay procesos en la cola, esperar un poco antes de volver a intentar
-                        TimeUnit.SECONDS.sleep(1);
-                    }
+        Thread atencionProcesos = new Thread(() -> {
+            int idAtendido = 0;
+            while (running) {
+                SimpleProcess procesoAtender = next();
+                if (procesoAtender == null) continue;
+                String tipoProceso = castingTipo(procesoAtender);
+                Double tiempoAtencion = 0.0;
+
+                if (procesoAtender instanceof ArithmeticProcess) {
+                    tiempoAtencion = ((ArithmeticProcess) procesoAtender).getTiempoServicio();
+                    idAtendido = ((ArithmeticProcess) procesoAtender).getId();
+                } else if (procesoAtender instanceof IOProcess) {
+                    tiempoAtencion = ((IOProcess) procesoAtender).getTiempoServicio();
+                    idAtendido = ((IOProcess) procesoAtender).getId();
+                } else if (procesoAtender instanceof ConditionalProcess) {
+                    tiempoAtencion = ((ConditionalProcess) procesoAtender).getTiempoServicio();
+                    idAtendido = ((ConditionalProcess) procesoAtender).getId();
+                } else if (procesoAtender instanceof LoopProcess) {
+                    tiempoAtencion = ((LoopProcess) procesoAtender).getTiempoServicio();
+                    idAtendido = ((LoopProcess) procesoAtender).getId();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+
+                long tiempoAtencionMs = (long) (tiempoAtencion * 1000);
+                System.out.println("Atendiendo proceso ID: " + idAtendido + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                try {
+                    Thread.sleep(tiempoAtencionMs);
+                } catch (Exception e) {
+                    System.out.println("Proceso interrumpido");
+                }
+                procesosAtendidos++;
+                remove();
+                imprimirCola();
             }
         });
 
-        // Iniciar ambos hilos
-        generacionThread.start();
-        atencionThread.start();
-    }
+        Thread recibirSalida = new Thread(() -> {
+            Scanner teclado = new Scanner(System.in);
+            while (running) {
+                String salida = teclado.nextLine();
+                if (salida.equals("q")) {
+                    System.out.println("Saliendo del programa...");
+                    stopRunning();
+                    break;
+                }
+            }
+            teclado.close();
+        });
 
-    // Generar proceso aleatorio de uno de los 4 tipos con ID correlativo
-    private SimpleProcess generarProcesoAleatorio(int id) {
-        Random rand = new Random();
-        int tipo = rand.nextInt(4); // 4 tipos de procesos: Aritmetico, IO, Condicional, Iterativo
-
-        switch (tipo) {
-            case 0:
-                SimpleProcess proceso = new ArithmeticProcess(id, arith);
-                break;
-            case 1:
-                 SimpleProcess proceso = new IOProcess(id, io);
-                break;
-            case 2:
-                SimpleProcess proceso = new ConditionalProcess(id, cont);
-                break;
-            default:
-                SimpleProcess proceso = new LoopProcess(id, loop);
-                break;
+        generacionProcesos.start();
+        atencionProcesos.start();
+        recibirSalida.start();
+        try {
+            generacionProcesos.join();
+            atencionProcesos.join();
+            recibirSalida.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        return proceso;
     }
 
-    // Atender proceso
-    private void atenderProceso(SimpleProcess proceso) throws InterruptedException {
-        // Simulamos el tiempo de atención del proceso
-        Double tiempoAtencion = casting(proceso);
-
-        System.out.println("Atendiendo proceso ID: " + proceso.getId() + " Tipo: PENDIENTE" + " Tiempo de atención: " + tiempoAtencion + " segundos.");
-
-        // El proceso se atiende durante su tiempo de atención
-        long tiempoAtencionFinal = (long)(tiempoAtencion * 1000);
-        Thread.sleep(tiempoAtencionFinal);
-
-        // Se ha terminado de atender el proceso
-        remove(); // Se elimina el proceso de la cola
-        procesosAtendidos++;
-
-        // Mostrar la información después de atender un proceso
-        mostrarInformacion();
+    public void stopRunning() {
+        this.running = false;
     }
 
-    // Mostrar la información en la consola
-    private void mostrarInformacion() {
-        System.out.println("\n--- Estado Actual ---");
-        // Mostrar la cola
-        System.out.println("Cola de procesos: ");
-        cola.forEach(proceso -> {
-            Double tiempoAtencion = casting(proceso);
-            System.out.println("ID: " + proceso.getId() + " Tipo: PENDIENTE" + " Tiempo de atención: " + tiempoAtencion);
-        });
-
-        // Mostrar los procesos atendidos
-        System.out.println("\nProcesos atendidos: " + procesosAtendidos);
-        System.out.println("Total de procesos: " + totalProcesses);
-    }
-
-    // Método para finalizar la simulación
-    public void detenerSimulacion() {
-        System.out.println("\nSimulación detenida.");
-        System.out.println("Procesos atendidos: " + procesosAtendidos);
-        System.out.println("Procesos en cola: " + size);
-        System.out.println("Promedio de atención por proceso: " + calcularPromedioAtencion());
-        System.out.println("Política utilizada: FCFS");
-    }
-
-    // Calcular el promedio de tiempo de atención por proceso
-    private double calcularPromedioAtencion() {
-        return (double) procesosAtendidos / totalProcesses;
-    }
-
-    private double casting(SimpleProcess proceso){
-        Double tiempoServicio = 0.0;
+    private String castingTipo(SimpleProcess proceso){
+        String tipo = "";
         if(proceso instanceof ArithmeticProcess){
-            tiempoServicio = ((ArithmeticProcess) proceso).getTiempoServicio();
+            tipo = ((ArithmeticProcess) proceso).getTipo();
         } else if(proceso instanceof IOProcess){
-            tiempoServicio = ((IOProcess) proceso).getTiempoServicio();
+            tipo = ((IOProcess) proceso).getTipo();
         } else if(proceso instanceof ConditionalProcess){
-            tiempoServicio = ((ConditionalProcess) proceso).getTiempoServicio();
+            tipo = ((ConditionalProcess) proceso).getTipo();
         } else if(proceso instanceof LoopProcess){
-            tiempoServicio = ((LoopProcess) proceso).getTiempoServicio();
+            tipo = ((LoopProcess) proceso).getTipo();
         }
-        return tiempoServicio;
+        return tipo;
     }
+    private String castingString(SimpleProcess proceso){
+        String texto = "";
+        if(proceso instanceof ArithmeticProcess){
+            texto = ((ArithmeticProcess) proceso).toString();
+        } else if(proceso instanceof IOProcess){
+            texto = ((IOProcess) proceso).toString();
+        } else if(proceso instanceof ConditionalProcess){
+            texto = ((ConditionalProcess) proceso).toString();
+        } else if(proceso instanceof LoopProcess){
+            texto = ((LoopProcess) proceso).toString();
+        }
+        return texto;
+    }
+    public void imprimirCola() {
+        if (cola.isEmpty()) {
+            System.out.println("La cola está vacía.");
+        } else {
+            System.out.print("Procesos en la cola: ");
+            for (SimpleProcess proceso : cola) {
+                System.out.print(castingString(proceso) + " ");
+            }
+            System.out.println();
+        }
+    }
+    private synchronized int generarNuevoID() {
+        return ++idGeneradoGlobal;
+    }
+
+    public void ejecucionDoble() {
+        Thread generacionProcesos = new Thread(() -> {
+            while (running) {
+                Random randTiempo = new Random();
+                Random randProceso = new Random();
+                long primeraParteLong = (long) (primeraParte * 1000);
+                long segundaParteLong = (long) (segundaParte * 1000);
+                long tiempoRandomLong = primeraParteLong + randTiempo.nextLong() % (segundaParteLong - primeraParteLong + 1);
+
+                try {
+                    Thread.sleep(tiempoRandomLong);
+                } catch (Exception e) {
+                    System.out.println("Proceso interrumpido");
+                }
+
+                int procesoEleccion = randProceso.nextInt(4);
+                int idGenerado = generarNuevoID();
+                SimpleProcess procesoGenerado = null;
+
+                if (procesoEleccion == 0) {
+                    procesoGenerado = new ArithmeticProcess(idGenerado, this.arith);
+                } else if (procesoEleccion == 1) {
+                    procesoGenerado = new IOProcess(idGenerado, this.io);
+                } else if (procesoEleccion == 2) {
+                    procesoGenerado = new ConditionalProcess(idGenerado, this.cont);
+                } else if (procesoEleccion == 3) {
+                    procesoGenerado = new LoopProcess(idGenerado, this.loop);
+                }
+
+                String tipoProceso = castingTipo(procesoGenerado);
+                add(procesoGenerado);
+                System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProceso);
+                imprimirCola();
+            }
+        });
+
+        Thread atencionProcesos1 = new Thread(() -> {
+            while (running) {
+                SimpleProcess procesoAtender = next();
+                if (procesoAtender == null) continue;
+                String tipoProceso = castingTipo(procesoAtender);
+                Double tiempoAtencion = 0.0;
+
+                if (procesoAtender instanceof ArithmeticProcess) {
+                    tiempoAtencion = ((ArithmeticProcess) procesoAtender).getTiempoServicio();
+                } else if (procesoAtender instanceof IOProcess) {
+                    tiempoAtencion = ((IOProcess) procesoAtender).getTiempoServicio();
+                } else if (procesoAtender instanceof ConditionalProcess) {
+                    tiempoAtencion = ((ConditionalProcess) procesoAtender).getTiempoServicio();
+                } else if (procesoAtender instanceof LoopProcess) {
+                    tiempoAtencion = ((LoopProcess) procesoAtender).getTiempoServicio();
+                }
+
+                long tiempoAtencionMs = (long) (tiempoAtencion * 1000);
+                System.out.println("Atendiendo proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                try {
+                    Thread.sleep(tiempoAtencionMs);
+                } catch (Exception e) {
+                    System.out.println("Proceso interrumpido");
+                }
+
+                procesosAtendidos++;
+                remove();
+                imprimirCola();
+            }
+        });
+
+        Thread atencionProcesos2 = new Thread(() -> {
+            while (running) {
+                SimpleProcess procesoAtender = next();
+                if (procesoAtender == null) continue;
+                String tipoProceso = castingTipo(procesoAtender);
+                Double tiempoAtencion = 0.0;
+
+                if (procesoAtender instanceof ArithmeticProcess) {
+                    tiempoAtencion = ((ArithmeticProcess) procesoAtender).getTiempoServicio();
+                } else if (procesoAtender instanceof IOProcess) {
+                    tiempoAtencion = ((IOProcess) procesoAtender).getTiempoServicio();
+                } else if (procesoAtender instanceof ConditionalProcess) {
+                    tiempoAtencion = ((ConditionalProcess) procesoAtender).getTiempoServicio();
+                } else if (procesoAtender instanceof LoopProcess) {
+                    tiempoAtencion = ((LoopProcess) procesoAtender).getTiempoServicio();
+                }
+
+                long tiempoAtencionMs = (long) (tiempoAtencion * 1000);
+                System.out.println("Atendiendo proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                try {
+                    Thread.sleep(tiempoAtencionMs);
+                } catch (Exception e) {
+                    System.out.println("Proceso interrumpido");
+                }
+
+                procesosAtendidos++;
+                remove();
+                imprimirCola();
+            }
+        });
+
+        Thread recibirSalida = new Thread(() -> {
+            Scanner teclado = new Scanner(System.in);
+            while (running) {
+                String salida = teclado.nextLine();
+                if (salida.equals("q")) {
+                    System.out.println("Saliendo del programa...");
+                    stopRunning();
+                    break;
+                }
+            }
+            teclado.close();
+        });
+
+        generacionProcesos.start();
+        atencionProcesos1.start();
+        atencionProcesos2.start();
+        recibirSalida.start();
+
+        try {
+            generacionProcesos.join();
+            atencionProcesos1.join();
+            atencionProcesos2.join();
+            recibirSalida.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
