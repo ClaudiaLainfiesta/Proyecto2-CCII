@@ -1,11 +1,5 @@
-/*PP.java */
-/**
-** Hecho por: Adriel Levi Argueta Caal
-**Carnet: 24003171
-**Seccion: BN
-**/
-/*Descripcion: */
 package scheduler.scheduling.policies;
+
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -22,6 +16,7 @@ public class PP extends Policy implements Enqueable {
     private final double loopTime;
     private double tiempoMinimo;
     private double tiempoMaximo;
+    private volatile boolean ejecutar; // Variable para controlar la ejecución de la simulación
 
     public PP(double tiempoMinimo, double tiempoMaximo, double arithTime, double ioTime, double condTime, double loopTime) {
         super();
@@ -34,6 +29,7 @@ public class PP extends Policy implements Enqueable {
         this.loopTime = loopTime;
         this.tiempoMinimo = tiempoMinimo;
         this.tiempoMaximo = tiempoMaximo;
+        this.ejecutar = true;
     }
 
     @Override
@@ -76,16 +72,28 @@ public class PP extends Policy implements Enqueable {
         Scanner scanner = new Scanner(System.in);
         System.out.println("Iniciando simulación con política de Prioridad...");
 
-        // Solicitar tiempo o rango de tiempo para la creación de nuevos procesos
-        long tiempoMaximoLong = (long)(this.tiempoMaximo);
-        long tiempoMinimoLong = (long)(this.tiempoMinimo);
+        // Proceso para interrumpir con Q
+        Thread listener = new Thread(() -> {
+            System.out.println("Presione 'Q' para detener la simulación.");
+            while (ejecutar) {
+                String input = scanner.nextLine();
+                if (input.equalsIgnoreCase("Q")) {
+                    ejecutar = false;
+                    System.out.println("Deteniendo la simulación...");
+                }
+            }
+        });
 
+        listener.start(); 
+
+        long tiempoMaximoLong = (long) (this.tiempoMaximo);
+        long tiempoMinimoLong = (long) (this.tiempoMinimo);
 
         int tiempoTranscurrido = 0;
         int id = 0;
-        long tiempoParaNuevoProceso = tiempoMinimoLong + (long)(Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
+        long tiempoParaNuevoProceso = tiempoMinimoLong + (long) (Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
 
-        while (true) {
+        while (ejecutar) {
             System.out.println("Tiempo transcurrido: " + tiempoTranscurrido + " ms");
 
             if (tiempoTranscurrido >= tiempoParaNuevoProceso) {
@@ -94,12 +102,28 @@ public class PP extends Policy implements Enqueable {
                 add(nuevoProceso);
                 System.out.println("Proceso agregado: ID " + nuevoProceso.getId() + ", tipo: " + nuevoProceso.getClass().getSimpleName());
 
-                tiempoParaNuevoProceso = tiempoTranscurrido + tiempoMinimoLong + (long)(Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
+                tiempoParaNuevoProceso = tiempoTranscurrido + tiempoMinimoLong + (long) (Math.random() * (tiempoMaximoLong - tiempoMinimoLong));
             }
 
             atenderProcesos();
             tiempoTranscurrido += 100;
+
+            try {
+                Thread.sleep(100); // Simular un intervalo de tiempo
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                e.printStackTrace();
+            }
         }
+
+        try {
+            listener.join(); // Esperar a que el hilo de escucha termine
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace();
+        }
+
+        System.out.println("Simulación finalizada.");
     }
 
     private SimpleProcess generarProcesoAleatorio(int id) {
