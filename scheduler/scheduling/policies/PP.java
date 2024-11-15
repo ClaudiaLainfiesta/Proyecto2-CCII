@@ -94,21 +94,29 @@ public class PP extends Policy implements Enqueable {
             }
         });
 
-        // Iniciar el hilo para agregar procesos
-        hiloAgregar.start();
 
         // Bucle principal para atender procesos
-        while (ejecutar) {
-            System.out.println("Atendiendo procesos...");
-            atenderProcesos();
-            try {
-                Thread.sleep(100); // Pausa entre atenciones para simular tiempo de procesamiento
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Bucle de atención interrumpido.");
+        Thread hiloAtender = new Thread(() -> {
+            Random random = new Random();
+            int id = 0;
+            long tiempoParaNuevoProceso = (long)(tiempoMinimo + (Math.random() * (tiempoMaximo - tiempoMinimo)));
+        
+            while (ejecutar) {
+                System.out.println("Atendiendo procesos...");
+                atenderProcesos();
+                
+                try {
+                    Thread.sleep(100); // Pausa de 100 ms para simular tiempo de procesamiento
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("Bucle de atención interrumpido");
+                }
             }
-        }
-
+        });
+    
+        hiloAtender.start();
+        hiloAgregar.start();
+  
         // Finalizar el hilo de agregar procesos si se detiene el programa
         try {
             hiloAgregar.join();
