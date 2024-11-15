@@ -114,15 +114,21 @@ public class FCFS extends Policy implements Enqueable {
                 }
 
                 long tiempoAtencionMs = (long) (tiempoAtencion * 1000);
-                System.out.println("Atendiendo proceso ID: " + idAtendido + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                System.out.println();
+                System.out.println("Atendiendo proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                System.out.println();
                 try {
                     Thread.sleep(tiempoAtencionMs);
                 } catch (Exception e) {
                     System.out.println("Proceso interrumpido");
                 }
+                System.out.println();
+                System.out.println("Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
                 procesosAtendidos++;
                 remove();
+                System.out.println();
                 imprimirCola();
+                System.out.println();
             }
         });
 
@@ -131,7 +137,9 @@ public class FCFS extends Policy implements Enqueable {
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
+                    System.out.println();
                     System.out.println("Saliendo del programa...");
+                    System.out.println();
                     stopRunning();
                     break;
                 }
@@ -227,8 +235,10 @@ public class FCFS extends Policy implements Enqueable {
 
                 String tipoProceso = castingTipo(procesoGenerado);
                 add(procesoGenerado);
+                System.out.println();
                 System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProceso);
                 imprimirCola();
+                System.out.println();
             }
         });
 
@@ -250,16 +260,21 @@ public class FCFS extends Policy implements Enqueable {
                 }
 
                 long tiempoAtencionMs = (long) (tiempoAtencion * 1000);
+                System.out.println();
                 System.out.println("Atendiendo proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                System.out.println();
                 try {
                     Thread.sleep(tiempoAtencionMs);
                 } catch (Exception e) {
                     System.out.println("Proceso interrumpido");
                 }
-
+                System.out.println();
+                System.out.println("Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
                 procesosAtendidos++;
                 remove();
+                System.out.println();
                 imprimirCola();
+                System.out.println();
             }
         });
 
@@ -281,16 +296,21 @@ public class FCFS extends Policy implements Enqueable {
                 }
 
                 long tiempoAtencionMs = (long) (tiempoAtencion * 1000);
+                System.out.println();
                 System.out.println("Atendiendo proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                System.out.println();
                 try {
                     Thread.sleep(tiempoAtencionMs);
                 } catch (Exception e) {
                     System.out.println("Proceso interrumpido");
                 }
-
+                System.out.println();
+                System.out.println("Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
                 procesosAtendidos++;
                 remove();
+                System.out.println();
                 imprimirCola();
+                System.out.println();
             }
         });
 
@@ -299,7 +319,9 @@ public class FCFS extends Policy implements Enqueable {
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
+                    System.out.println();
                     System.out.println("Saliendo del programa...");
+                    System.out.println();
                     stopRunning();
                     break;
                 }
