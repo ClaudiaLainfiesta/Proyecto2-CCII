@@ -4,14 +4,20 @@
 ** Carnet: 24000149.
 ** Seccion: BN.
 **/
-/*Descripcion: Este es el método principal que ejecuta el programa. Recibe los argumentos de la línea de comandos, valida los mismos y llama a diferentes métodos según el número y tipo de argumentos proporcionados. Se encarga de gestionar las políticas de planificación y las configuraciones de la simulación.*/
+/*Descripción: Este es la clase principal que ejecuta el programa. Recibe los argumentos de la línea de comandos, valida los mismos y llama a diferentes métodos según el número y tipo de argumentos proporcionados. Se encarga de gestionar las políticas de planificación y las configuraciones de la simulación.*/
 
-import scheduler.scheduling.policies.PP;
 import scheduler.scheduling.policies.FCFS;
+import scheduler.scheduling.policies.PP;
 //import scheduler.scheduling.policies.LCFS;
 //import scheduler.scheduling.policies.RR;
 
 public class ProcessScheduler {
+
+    /**
+     * Nombre: main.
+     * Método que realiza la ejecución principal del programa al ser compilado.
+     * @return ejecución del proceso solicitado.
+     */
     public static void main(String[] args){
         String politicaDual = args[0];
         try{
@@ -69,7 +75,17 @@ public class ProcessScheduler {
         }
     }
 
-    //Método que se encarga de llamar a la política de planificación correspondiente cuando se selecciona una política de un solo procesador.
+    /**
+     * Nombre: llamarPoliticaSimple.
+     * Método que manda a llamar la politica (FCFS, LCFS o PP) solicita con un solo procesador.
+     * @param primeraParte tiempo mínimo de agregar procesos.
+     * @param segundaParte tiempo máximo de agregar procesos.
+     * @param arith tiempo de atención de procesos aritméticos.
+     * @param io tiempo de atención de procesos input/output.
+     * @param cont tiempo de atención de procesos condicionales.
+     * @param loop tiempo de atención de procesos iterativos.
+     * @return ejecución del proceso solicitado.
+     */
     public static void llamarPoliticaSimple(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loop){
         if (politica.equals("-fcfs")) {
             System.out.println("----------Iniciando Proceso First-Come First-Served----------");
@@ -87,7 +103,18 @@ public class ProcessScheduler {
         }
     }
 
-    //Método se utiliza para ejecutar políticas de planificación que requieren un parámetro adicional, como el quantum en el caso de la política Round-Robin (RR).
+    /**
+     * Nombre: llamarPoliticaSimple2.
+     * Método que manda a llamar la politica (RR) solicita con un solo procesador.
+     * @param primeraParte tiempo mínimo de agregar procesos.
+     * @param segundaParte tiempo máximo de agregar procesos.
+     * @param arith tiempo de atención de procesos aritméticos.
+     * @param io tiempo de atención de procesos input/output.
+     * @param cont tiempo de atención de procesos condicionales.
+     * @param loop tiempo de atención de procesos iterativos.
+     * @param quantium tiempo fijo de atención.
+     * @return ejecución del proceso solicitado.
+     */
     public static void llamarPoliticaSimple2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loopm, Double quantium){
         if (politica.equals("-rr")) {
             System.out.println("----------Iniciando Proceso Round-Robin----------");
@@ -95,7 +122,18 @@ public class ProcessScheduler {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
     }
-    //Método que maneja las políticas de planificación que utilizan dos procesadores. De manera similar a llamarPoliticaSimple, se crea una instancia de la política correspondiente, pero esta vez para ejecutarse con dos procesadores.
+
+    /**
+     * Nombre: llamarPoliticaDoble.
+     * Método que manda a llamar la politica (FCFS, LCFS o PP) solicita con dos procesadores.
+     * @param primeraParte tiempo mínimo de agregar procesos.
+     * @param segundaParte tiempo máximo de agregar procesos.
+     * @param arith tiempo de atención de procesos aritméticos.
+     * @param io tiempo de atención de procesos input/output.
+     * @param cont tiempo de atención de procesos condicionales.
+     * @param loop tiempo de atención de procesos iterativos.
+     * @return ejecución del proceso solicitado.
+     */
     public static void llamarPoliticaDoble(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loop){
         if (politica.equals("-fcfs")) {
             System.out.println("----------Iniciando Proceso First-Come First-Served----------");
@@ -112,7 +150,19 @@ public class ProcessScheduler {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
     }
-    //Método que maneja las políticas de planificación con dos procesadores que requieren el parámetro quantum, como la política Round-Robin.
+
+    /**
+     * Nombre: llamarPoliticaDoble2.
+     * Método que manda a llamar la politica (RR) solicita con un solo procesador.
+     * @param primeraParte tiempo mínimo de agregar procesos.
+     * @param segundaParte tiempo máximo de agregar procesos.
+     * @param arith tiempo de atención de procesos aritméticos.
+     * @param io tiempo de atención de procesos input/output.
+     * @param cont tiempo de atención de procesos condicionales.
+     * @param loop tiempo de atención de procesos iterativos.
+     * @param quantium tiempo fijo de atención.
+     * @return ejecución del proceso solicitado.
+     */
     public static void llamarPoliticaDoble2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loopm, Double quantium){
         if (politica.equals("-rr")) {
             System.out.println("----------Iniciando Proceso Round-Robin----------");
@@ -120,14 +170,24 @@ public class ProcessScheduler {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
     }
-    //Muestra información sobre las políticas de planificación disponibles y cómo funcionan.
+
+    /**
+     * Nombre: help.
+     * Método que imprime en terminal cada una de las políticas disponibles y su funcionalidad.
+     * @return mensajes en terminal.
+     */
     public static void help(){
         System.out.println("First-Come First-Served:\n   El primer proceso en llegar es el primero en ser atendido.");
         System.out.println("Last-Come First-Served:\n   El último proceso en llegar es el primero en ser atendido.");
         System.out.println("Priority Policy:\n   El proceso con mayor prioridad es atendido primero.");
         System.out.println("Round-Robin:\n   Cada proceso recibe una cantidad fija de tiempo (quantum) y se alternan en la ejecución.");
     }
-    //Muestra la sintaxis correcta para ejecutar el programa con los argumentos necesarios.
+
+    /**
+     * Nombre: sintaxis.
+     * Método que imprime en terminal cada una de las sintaxis validas.
+     * @return mensajes en terminal.
+     */
     public static void sintaxis(){
         System.out.println("Sintaxis válidas:");
         System.out.println("   java ProcessScheduler -fcfs rango_tiempo_ingreso arith io cond loop");
@@ -135,7 +195,12 @@ public class ProcessScheduler {
         System.out.println("   java ProcessScheduler -pp   rango_tiempo_ingreso arith io cond loop");
         System.out.println("   java ProcessScheduler -rr   rango_tiempo_ingreso arith io cond loop quantum");
     }
-    //Muestra mensajes relacionados con los comandos proporcionados, como la ayuda o la sintaxis.
+
+    /**
+     * Nombre: mensajes.
+     * Método que determina si se manda a llamar el método help o sintaxis.
+     * @return mensajes en terminal.
+     */
     public static void mensajes(String comando){
         if (comando.equals("-help")){
             help();
