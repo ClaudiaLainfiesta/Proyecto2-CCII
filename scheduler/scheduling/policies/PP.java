@@ -76,7 +76,7 @@ public class PP extends Policy implements Enqueable {
         Thread hiloAgregar = new Thread(() -> {
             Random random = new Random();
             int id = 0;
-            long tiempoParaNuevoProceso = tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
+            long tiempoParaNuevoProceso = (long) (tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo)));
 
             while (ejecutar) {
                 try {
@@ -86,7 +86,7 @@ public class PP extends Policy implements Enqueable {
                     add(nuevoProceso);
                     System.out.println("Proceso agregado: ID " + nuevoProceso.getId() + ", tipo: " + nuevoProceso.getClass().getSimpleName());
                     
-                    tiempoParaNuevoProceso = tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo));
+                    tiempoParaNuevoProceso = (long) (tiempoMinimo + (long)(Math.random() * (tiempoMaximo - tiempoMinimo)));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     System.out.println("Hilo de agregar procesos interrumpido.");

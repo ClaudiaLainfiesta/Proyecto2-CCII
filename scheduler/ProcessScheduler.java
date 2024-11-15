@@ -1,4 +1,10 @@
-
+/*ProcessScheduler.java */
+/**
+** Hecho por: Maria Claudia Lainfiesta Herrera.
+** Carnet: 24000149.
+** Seccion: BN.
+**/
+/*Descripcion: Este es el método principal que ejecuta el programa. Recibe los argumentos de la línea de comandos, valida los mismos y llama a diferentes métodos según el número y tipo de argumentos proporcionados. Se encarga de gestionar las políticas de planificación y las configuraciones de la simulación.*/
 
 import scheduler.scheduling.policies.PP;
 import scheduler.scheduling.policies.FCFS;
@@ -63,7 +69,7 @@ public class ProcessScheduler {
         }
     }
 
-    /*Metodo que segun la politica crea el contructor de la clase correspondiente y llama la ejecucion simple de un solo procesador */
+    //Método que se encarga de llamar a la política de planificación correspondiente cuando se selecciona una política de un solo procesador.
     public static void llamarPoliticaSimple(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loop){
         if (politica.equals("-fcfs")) {
             System.out.println("----------Iniciando Proceso First-Come First-Served----------");
@@ -81,7 +87,7 @@ public class ProcessScheduler {
         }
     }
 
-    /*Metodo que segun la politica crea el constructor de la clase correspondiente y llama la ejecucion simple de dos procesadores */
+    //Método se utiliza para ejecutar políticas de planificación que requieren un parámetro adicional, como el quantum en el caso de la política Round-Robin (RR).
     public static void llamarPoliticaSimple2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loopm, Double quantium){
         if (politica.equals("-rr")) {
             System.out.println("----------Iniciando Proceso Round-Robin----------");
@@ -89,7 +95,7 @@ public class ProcessScheduler {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
     }
-
+    //Método que maneja las políticas de planificación que utilizan dos procesadores. De manera similar a llamarPoliticaSimple, se crea una instancia de la política correspondiente, pero esta vez para ejecutarse con dos procesadores.
     public static void llamarPoliticaDoble(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loop){
         if (politica.equals("-fcfs")) {
             System.out.println("----------Iniciando Proceso First-Come First-Served----------");
@@ -106,7 +112,7 @@ public class ProcessScheduler {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
     }
-
+    //Método que maneja las políticas de planificación con dos procesadores que requieren el parámetro quantum, como la política Round-Robin.
     public static void llamarPoliticaDoble2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loopm, Double quantium){
         if (politica.equals("-rr")) {
             System.out.println("----------Iniciando Proceso Round-Robin----------");
@@ -114,14 +120,14 @@ public class ProcessScheduler {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
     }
-
+    //Muestra información sobre las políticas de planificación disponibles y cómo funcionan.
     public static void help(){
         System.out.println("First-Come First-Served:\n   El primer proceso en llegar es el primero en ser atendido.");
         System.out.println("Last-Come First-Served:\n   El último proceso en llegar es el primero en ser atendido.");
         System.out.println("Priority Policy:\n   El proceso con mayor prioridad es atendido primero.");
         System.out.println("Round-Robin:\n   Cada proceso recibe una cantidad fija de tiempo (quantum) y se alternan en la ejecución.");
     }
-
+    //Muestra la sintaxis correcta para ejecutar el programa con los argumentos necesarios.
     public static void sintaxis(){
         System.out.println("Sintaxis válidas:");
         System.out.println("   java ProcessScheduler -fcfs rango_tiempo_ingreso arith io cond loop");
@@ -129,6 +135,7 @@ public class ProcessScheduler {
         System.out.println("   java ProcessScheduler -pp   rango_tiempo_ingreso arith io cond loop");
         System.out.println("   java ProcessScheduler -rr   rango_tiempo_ingreso arith io cond loop quantum");
     }
+    //Muestra mensajes relacionados con los comandos proporcionados, como la ayuda o la sintaxis.
     public static void mensajes(String comando){
         if (comando.equals("-help")){
             help();

@@ -1,10 +1,10 @@
-/*ArithmeticProcess.java */
+/*FCFS.java */
 /**
-** Hecho por: Maria Claudia Lainfiesta Herrera
-** Carnet: 24000149
-** Seccion: BN
+** Hecho por: Maria Claudia Lainfiesta Herrera.
+** Carnet: 24000149.
+** Seccion: BN.
 **/
-/*Descripcion: Clase que realiza la política First Come First Served */
+/*Descripción: Clase que realiza la política First Come First Served, los procesos son atendidos en el orden en que llegan a la cola de procesos.*/
 
 package scheduler.scheduling.policies;
 
@@ -27,8 +27,16 @@ public class FCFS extends Policy implements Enqueable {
     protected int procesosAtendidos;
     private boolean running;
 
+    /**
+     * Constructor que inicializa los parámetros para la política de FCFS.
+     * @param primeraParte tiempo mínimo de agregar procesos.
+     * @param segundaParte tiempo máximo de agregar procesos.
+     * @param arith tiempo de atención de procesos aritméticos.
+     * @param io tiempo de atención de procesos input/output.
+     * @param cont tiempo de atención de procesos condicionales.
+     * @param loop tiempo de atención de procesos iterativos.
+     */
     private static int idGeneradoGlobal = 0;
-
     public FCFS(Double primeraParte, Double segundaParte, Double arith, Double io, Double cont, Double loop) {
         super();
         this.cola = new ConcurrentLinkedQueue<>();
@@ -42,17 +50,20 @@ public class FCFS extends Policy implements Enqueable {
 
         this.running = true;
     }
+
     @Override
     public void add(SimpleProcess P) {
         this.cola.add(P);
         this.size++;
         this.totalProcesses++;
     }
+
     @Override
     public void remove() {
         this.cola.poll();
         this.size--;
     }
+
     @Override
     public SimpleProcess next() {
         return this.cola.peek();
@@ -176,6 +187,7 @@ public class FCFS extends Policy implements Enqueable {
         }
         return tipo;
     }
+
     private String castingString(SimpleProcess proceso){
         String texto = "";
         if(proceso instanceof ArithmeticProcess){
@@ -189,6 +201,7 @@ public class FCFS extends Policy implements Enqueable {
         }
         return texto;
     }
+
     public void imprimirCola() {
         if (cola.isEmpty()) {
             System.out.println("La cola está vacía.");
@@ -200,6 +213,7 @@ public class FCFS extends Policy implements Enqueable {
             System.out.println();
         }
     }
+
     private synchronized int generarNuevoID() {
         return ++idGeneradoGlobal;
     }
