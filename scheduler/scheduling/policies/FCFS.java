@@ -11,7 +11,6 @@ package scheduler.scheduling.policies;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import scheduler.processing.*;
 
 public class FCFS extends Policy implements Enqueable {
@@ -26,6 +25,8 @@ public class FCFS extends Policy implements Enqueable {
     protected Double loop;
     protected int procesosAtendidos;
     private boolean running;
+    private double totalTiempoAtencion = 0.0;
+
 
     /**
      * Constructor que inicializa los parámetros para la política de FCFS.
@@ -135,6 +136,7 @@ public class FCFS extends Policy implements Enqueable {
                 }
                 System.out.println();
                 System.out.println("Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                totalTiempoAtencion += tiempoAtencion;
                 procesosAtendidos++;
                 remove();
                 System.out.println();
@@ -148,9 +150,6 @@ public class FCFS extends Policy implements Enqueable {
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
-                    System.out.println();
-                    System.out.println("Saliendo del programa...");
-                    System.out.println();
                     stopRunning();
                     break;
                 }
@@ -172,6 +171,18 @@ public class FCFS extends Policy implements Enqueable {
 
     public void stopRunning() {
         this.running = false;
+        int procesosEnCola = this.cola.size();
+
+        double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+        System.out.println();
+        System.out.println("--------Datos finales--------");
+        System.out.println("Procesos atendidos: " + procesosAtendidos);
+        System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola);
+        System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
+        System.out.println("Política utilizada: First Come First Served (FCFS)");
+        System.out.println();
+
+        System.exit(0);
     }
 
     private String castingTipo(SimpleProcess proceso){
@@ -284,6 +295,7 @@ public class FCFS extends Policy implements Enqueable {
                 }
                 System.out.println();
                 System.out.println("Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                totalTiempoAtencion += tiempoAtencion;
                 procesosAtendidos++;
                 remove();
                 System.out.println();
@@ -320,6 +332,7 @@ public class FCFS extends Policy implements Enqueable {
                 }
                 System.out.println();
                 System.out.println("Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                totalTiempoAtencion += tiempoAtencion;
                 procesosAtendidos++;
                 remove();
                 System.out.println();
@@ -333,9 +346,6 @@ public class FCFS extends Policy implements Enqueable {
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
-                    System.out.println();
-                    System.out.println("Saliendo del programa...");
-                    System.out.println();
                     stopRunning();
                     break;
                 }
