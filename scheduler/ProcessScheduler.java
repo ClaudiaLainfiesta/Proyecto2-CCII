@@ -177,10 +177,27 @@ public class ProcessScheduler {
      * @return mensajes en terminal.
      */
     public static void help(){
-        System.out.println("First-Come First-Served:\n   El primer proceso en llegar es el primero en ser atendido.");
-        System.out.println("Last-Come First-Served:\n   El último proceso en llegar es el primero en ser atendido.");
-        System.out.println("Priority Policy:\n   El proceso con mayor prioridad es atendido primero.");
-        System.out.println("Round-Robin:\n   Cada proceso recibe una cantidad fija de tiempo (quantum) y se alternan en la ejecución.");
+        System.out.println();
+        System.out.println("COMANDOS/POLITICAS VALIDAS:");
+        System.out.println();
+        System.out.println("-fsfc (First-Come First-Served):");
+        System.out.println("   El primer proceso en llegar es el primero en ser atendido.");
+        System.out.println();
+        System.out.println("-lsfc (Last-Come First-Served):");
+        System.out.println("   El último proceso en llegar es el primero en ser atendido.");
+        System.out.println();
+        System.out.println("-pp (Priority Policy):");
+        System.out.println("   El proceso con mayor prioridad es atendido primero.");
+        System.out.println();
+        System.out.println("-rr (Round-Robin):");
+        System.out.println("   Cada proceso recibe una cantidad fija de tiempo (quantum) y se alternan en la ejecución.");
+        System.out.println();
+        System.out.println("-help (ayuda):");
+        System.out.println("   Despliegue de comando y politicas validas en el programa..");
+        System.out.println();
+        System.out.println("-sintaxis (escritura):");
+        System.out.println("   Despliegue de sintaxis validas dentro del programa.");
+        System.out.println();
     }
 
     /**
@@ -189,11 +206,21 @@ public class ProcessScheduler {
      * @return mensajes en terminal.
      */
     public static void sintaxis(){
-        System.out.println("Sintaxis válidas:");
+        System.out.println();
+        System.out.println("SINTAXIS VALIDAS:");
+        System.out.println();
+        System.out.println(" ~1 procesador:");
         System.out.println("   java ProcessScheduler -fcfs rango_tiempo_ingreso arith io cond loop");
         System.out.println("   java ProcessScheduler -lcfs rango_tiempo_ingreso arith io cond loop");
         System.out.println("   java ProcessScheduler -pp   rango_tiempo_ingreso arith io cond loop");
         System.out.println("   java ProcessScheduler -rr   rango_tiempo_ingreso arith io cond loop quantum");
+        System.out.println();
+        System.out.println(" ~2 procesadores:");
+        System.out.println("   java ProcessScheduler -dual -fcfs rango_tiempo_ingreso arith io cond loop");
+        System.out.println("   java ProcessScheduler -dual -lcfs rango_tiempo_ingreso arith io cond loop");
+        System.out.println("   java ProcessScheduler -dual -pp   rango_tiempo_ingreso arith io cond loop");
+        System.out.println("   java ProcessScheduler -dual -rr   rango_tiempo_ingreso arith io cond loop quantum");
+        System.out.println();
     }
 
     /**

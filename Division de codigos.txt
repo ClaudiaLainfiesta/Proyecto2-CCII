@@ -3,7 +3,7 @@ Políticas:
 -FCFS: Maria Claudia Lainfiesta Herrera.
 -LCFS: Kevin Jeancarlo De León Castillo.
 -PP: Adriel Levi Argueta Caal.
--RB:
+-RR:
     Maria Claudia Lainfiesta Herrera.
     Kevin Jeancarlo De León Castillo.
     Adriel Levi Argueta Caal.

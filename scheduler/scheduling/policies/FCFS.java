@@ -15,6 +15,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import scheduler.processing.*;
 
 public class FCFS extends Policy implements Enqueable {
+
+    //************************* Campos ***********************************
+
     protected ConcurrentLinkedQueue<SimpleProcess> cola;
     protected int size;
     protected int totalProcesses;
@@ -27,6 +30,8 @@ public class FCFS extends Policy implements Enqueable {
     protected int procesosAtendidos;
     private boolean running;
     private double totalTiempoAtencion = 0.0;
+
+    //************************* Constructor ***********************************
 
     /**
      * Constructor que inicializa los parámetros para la política de FCFS.
@@ -51,6 +56,8 @@ public class FCFS extends Policy implements Enqueable {
 
         this.running = true;
     }
+
+    //************************* Métodos implementados ***********************************
 
     /**
      * Nombre: add.
@@ -83,6 +90,8 @@ public class FCFS extends Policy implements Enqueable {
     public SimpleProcess next() {
         return this.cola.peek();
     }
+
+    //************************* Métodos principales ***********************************
 
     /**
      * Nombre: ejecucionSimple
@@ -184,95 +193,8 @@ public class FCFS extends Policy implements Enqueable {
             atencionProcesos.join();
             recibirSalida.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Hubo un problema de sincronización.");
         }
-    }
-
-    /**
-     * Nombre: stopRunning.
-     * Método que detiene por completo el programa e imprime los datos finales.
-     * @return mensaje en terminal de datos finales.
-     */
-    public void stopRunning() {
-        this.running = false;
-        int procesosEnCola = this.cola.size();
-
-        double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
-        System.out.println();
-        System.out.println("--------Datos finales--------");
-        System.out.println("Procesos atendidos: " + procesosAtendidos);
-        System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola);
-        System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
-        System.out.println("Política utilizada: First Come First Served (FCFS)");
-        System.out.println();
-
-        System.exit(0);
-    }
-
-    /**
-     * Nombre: castingTipo.
-     * Método en el que castea en cada tipo de proceso y obtiene el tipo de proceso que es.
-     * @param proceso proceso al que se casteara
-     * @return tipo de proceso.
-     */
-    private String castingTipo(SimpleProcess proceso){
-        String tipo = "";
-        if(proceso instanceof ArithmeticProcess){
-            tipo = ((ArithmeticProcess) proceso).getTipo();
-        } else if(proceso instanceof IOProcess){
-            tipo = ((IOProcess) proceso).getTipo();
-        } else if(proceso instanceof ConditionalProcess){
-            tipo = ((ConditionalProcess) proceso).getTipo();
-        } else if(proceso instanceof LoopProcess){
-            tipo = ((LoopProcess) proceso).getTipo();
-        }
-        return tipo;
-    }
-
-    /**
-     * Nombre: castingString.
-     * Método en el que castea en cada tipo de proceso y su modo de impresión (toString).
-     * @param proceso proceso al que se casteara
-     * @return string del proceso.
-     */
-    private String castingString(SimpleProcess proceso){
-        String texto = "";
-        if(proceso instanceof ArithmeticProcess){
-            texto = ((ArithmeticProcess) proceso).toString();
-        } else if(proceso instanceof IOProcess){
-            texto = ((IOProcess) proceso).toString();
-        } else if(proceso instanceof ConditionalProcess){
-            texto = ((ConditionalProcess) proceso).toString();
-        } else if(proceso instanceof LoopProcess){
-            texto = ((LoopProcess) proceso).toString();
-        }
-        return texto;
-    }
-
-    /**
-     * Nombre: imprimirCola.
-     * Método que imprime la cola actualizada cada vez que se le mande a llamar.
-     * @return cola completa.
-     */
-    public void imprimirCola() {
-        if (cola.isEmpty()) {
-            System.out.println("La cola está vacía.");
-        } else {
-            System.out.print("Procesos en la cola: ");
-            for (SimpleProcess proceso : cola) {
-                System.out.print(castingString(proceso) + " ");
-            }
-            System.out.println();
-        }
-    }
-
-    /**
-     * Nombre: generarNuevoID.
-     * Método que genera un nuevo ID único y global para cada proceso que se crea durante la ejecución.
-     * @return aumento de no. ID.
-     */
-    private synchronized int generarNuevoID() {
-        return ++idGeneradoGlobal;
     }
 
     /**
@@ -415,8 +337,96 @@ public class FCFS extends Policy implements Enqueable {
             atencionProcesos2.join();
             recibirSalida.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Hubo un problema de sincronización.");
         }
     }
 
+    //************************* Métodos secundarios ***********************************
+
+    /**
+     * Nombre: stopRunning.
+     * Método que detiene por completo el programa e imprime los datos finales.
+     * @return mensaje en terminal de datos finales.
+     */
+    public void stopRunning() {
+        this.running = false;
+        int procesosEnCola = this.cola.size();
+
+        double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+        System.out.println();
+        System.out.println("--------Datos finales--------");
+        System.out.println("Procesos atendidos: " + procesosAtendidos);
+        System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola);
+        System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
+        System.out.println("Política utilizada: First Come First Served (FCFS)");
+        System.out.println();
+
+        System.exit(0);
+    }
+
+    /**
+     * Nombre: castingTipo.
+     * Método en el que castea en cada tipo de proceso y obtiene el tipo de proceso que es.
+     * @param proceso proceso al que se casteara
+     * @return tipo de proceso.
+     */
+    private String castingTipo(SimpleProcess proceso){
+        String tipo = "";
+        if(proceso instanceof ArithmeticProcess){
+            tipo = ((ArithmeticProcess) proceso).getTipo();
+        } else if(proceso instanceof IOProcess){
+            tipo = ((IOProcess) proceso).getTipo();
+        } else if(proceso instanceof ConditionalProcess){
+            tipo = ((ConditionalProcess) proceso).getTipo();
+        } else if(proceso instanceof LoopProcess){
+            tipo = ((LoopProcess) proceso).getTipo();
+        }
+        return tipo;
+    }
+
+    /**
+     * Nombre: castingString.
+     * Método en el que castea en cada tipo de proceso y su modo de impresión (toString).
+     * @param proceso proceso al que se casteara
+     * @return string del proceso.
+     */
+    private String castingString(SimpleProcess proceso){
+        String texto = "";
+        if(proceso instanceof ArithmeticProcess){
+            texto = ((ArithmeticProcess) proceso).toString();
+        } else if(proceso instanceof IOProcess){
+            texto = ((IOProcess) proceso).toString();
+        } else if(proceso instanceof ConditionalProcess){
+            texto = ((ConditionalProcess) proceso).toString();
+        } else if(proceso instanceof LoopProcess){
+            texto = ((LoopProcess) proceso).toString();
+        }
+        return texto;
+    }
+
+    /**
+     * Nombre: imprimirCola.
+     * Método que imprime la cola actualizada cada vez que se le mande a llamar.
+     * @return cola completa.
+     */
+    public void imprimirCola() {
+        if (cola.isEmpty()) {
+            System.out.println("La cola está vacía.");
+        } else {
+            System.out.print("Procesos en la cola: ");
+            for (SimpleProcess proceso : cola) {
+                System.out.print(castingString(proceso) + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    /**
+     * Nombre: generarNuevoID.
+     * Método que genera un nuevo ID único y global para cada proceso que se crea durante la ejecución.
+     * @return aumento de no. ID.
+     */
+    private synchronized int generarNuevoID() {
+        return ++idGeneradoGlobal;
+    }
 }
