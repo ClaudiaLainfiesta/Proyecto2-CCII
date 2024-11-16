@@ -8,6 +8,7 @@
 
 package scheduler.scheduling.policies;
 
+/*Librerías utilizadas dentro del programa */
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -26,7 +27,6 @@ public class FCFS extends Policy implements Enqueable {
     protected int procesosAtendidos;
     private boolean running;
     private double totalTiempoAtencion = 0.0;
-
 
     /**
      * Constructor que inicializa los parámetros para la política de FCFS.
@@ -52,6 +52,11 @@ public class FCFS extends Policy implements Enqueable {
         this.running = true;
     }
 
+    /**
+     * Nombre: add.
+     * Método que agrega un proceso a la cola.
+     * @param P proceso a encolar.
+     */
     @Override
     public void add(SimpleProcess P) {
         this.cola.add(P);
@@ -59,17 +64,31 @@ public class FCFS extends Policy implements Enqueable {
         this.totalProcesses++;
     }
 
+    /**
+     * Nombre: remove.
+     * Método que remueve de la cola el que sigue.
+     */
     @Override
     public void remove() {
         this.cola.poll();
         this.size--;
     }
 
+    /**
+     * Nombre:next.
+     * Método que obtiene el siguiente proceso en la cola.
+     * @return proceso que sigue.
+     */
     @Override
     public SimpleProcess next() {
         return this.cola.peek();
     }
 
+    /**
+     * Nombre: ejecucionSimple
+     * Método que realiza la ejecución con un solo procesador de la política FCFS, en donde se atiende y generan procesos al mismo tiempo.
+     * @return ejecución del programa con política FCFS.
+     */
     public void ejecucionSimple() {
         Thread generacionProcesos = new Thread(() -> {
             int idGenerado = 0;
@@ -169,6 +188,11 @@ public class FCFS extends Policy implements Enqueable {
         }
     }
 
+    /**
+     * Nombre: stopRunning.
+     * Método que detiene por completo el programa e imprime los datos finales.
+     * @return mensaje en terminal de datos finales.
+     */
     public void stopRunning() {
         this.running = false;
         int procesosEnCola = this.cola.size();
@@ -185,6 +209,12 @@ public class FCFS extends Policy implements Enqueable {
         System.exit(0);
     }
 
+    /**
+     * Nombre: castingTipo.
+     * Método en el que castea en cada tipo de proceso y obtiene el tipo de proceso que es.
+     * @param proceso proceso al que se casteara
+     * @return tipo de proceso.
+     */
     private String castingTipo(SimpleProcess proceso){
         String tipo = "";
         if(proceso instanceof ArithmeticProcess){
@@ -199,6 +229,12 @@ public class FCFS extends Policy implements Enqueable {
         return tipo;
     }
 
+    /**
+     * Nombre: castingString.
+     * Método en el que castea en cada tipo de proceso y su modo de impresión (toString).
+     * @param proceso proceso al que se casteara
+     * @return string del proceso.
+     */
     private String castingString(SimpleProcess proceso){
         String texto = "";
         if(proceso instanceof ArithmeticProcess){
@@ -213,6 +249,11 @@ public class FCFS extends Policy implements Enqueable {
         return texto;
     }
 
+    /**
+     * Nombre: imprimirCola.
+     * Método que imprime la cola actualizada cada vez que se le mande a llamar.
+     * @return cola completa.
+     */
     public void imprimirCola() {
         if (cola.isEmpty()) {
             System.out.println("La cola está vacía.");
@@ -225,10 +266,20 @@ public class FCFS extends Policy implements Enqueable {
         }
     }
 
+    /**
+     * Nombre: generarNuevoID.
+     * Método que genera un nuevo ID único y global para cada proceso que se crea durante la ejecución.
+     * @return aumento de no. ID.
+     */
     private synchronized int generarNuevoID() {
         return ++idGeneradoGlobal;
     }
 
+    /**
+     * Nombre: ejecucionDoble
+     * Método que realiza la ejecución con dos procesadores de la política FCFS, en donde se atiende y generan procesos al mismo tiempo.
+     * @return ejecución del programa con política FCFS con dos procesadores.
+     */
     public void ejecucionDoble() {
         Thread generacionProcesos = new Thread(() -> {
             while (running) {
