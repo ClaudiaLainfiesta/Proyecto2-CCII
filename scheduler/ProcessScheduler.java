@@ -166,9 +166,11 @@ public class ProcessScheduler {
      * @param quantium tiempo fijo de atención.
      * @return ejecución del proceso solicitado.
      */
-    public static void llamarPoliticaDoble2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loopm, Double quantium){
+    public static void llamarPoliticaDoble2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loop, Double quantium){
         if (politica.equals("-rr")) {
             System.out.println("----------Iniciando Proceso Round-Robin----------");
+            RR procesoRequerido = new RR(primeraParte, segundaParte, arith, io, cond, loop, quantium);
+            procesoRequerido.dosProcesadores();
         } else {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }

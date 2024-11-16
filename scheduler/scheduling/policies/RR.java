@@ -163,7 +163,114 @@ public class RR extends Policy implements Enqueable {
         integracionProcesos.start();
         atencionProcesos.start();
         leerTeclado.start();
+
     }
+
+    public void dosProcesadores(){
+        Thread integracionProcesos = new Thread(() -> {
+            while(running){
+                long tiempoSleep = tiempoAleatorioRango();
+                try{
+                    Thread.sleep(tiempoSleep);
+                }catch(Exception e){
+                    System.out.println("Proceso interrumpido");
+                }
+                int idGenerado = generarNuevoID();
+                SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
+                String tipoProcesoGenerado = castingTipo(procesoGenerado);
+                add(procesoGenerado);
+                System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProcesoGenerado);
+                imprimirCola();
+            }
+        });
+        Thread atencionProcesos1 = new Thread(() -> {
+            while(running){
+                SimpleProcess procesoAtender = next();
+                if (procesoAtender == null) continue;
+                int idProceso = castingID(procesoAtender);
+                Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
+                String tipoProceso = castingTipo(procesoAtender);
+                long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
+                System.out.println("\nAtendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+
+                double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
+                try {
+                    Thread.sleep((long) (tiempoAtencion * 1000));
+                } catch (InterruptedException e) {
+                    System.out.println("Atención interrumpida.");
+                }
+
+                tiempoAtencionProceso -= tiempoAtencion;
+                totalTiempoAtencion += tiempoAtencion;
+
+                if (tiempoAtencionProceso > 0) {
+                    System.out.println("Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
+                    remove();
+                    add(procesoAtender);
+                } else {
+                    System.out.println("Proceso ID: " + idProceso + " completado.");
+                    procesosAtendidos++;
+                    remove();
+                    System.out.println();
+                    imprimirCola();
+                    System.out.println();
+                }
+            }
+        });
+        Thread atencionProcesos2 = new Thread(() -> {
+            while(running){
+                SimpleProcess procesoAtender = next();
+                if (procesoAtender == null) continue;
+                int idProceso = castingID(procesoAtender);
+                Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
+                String tipoProceso = castingTipo(procesoAtender);
+                long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
+                System.out.println("\nAtendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+
+                double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
+                try {
+                    Thread.sleep((long) (tiempoAtencion * 1000));
+                } catch (InterruptedException e) {
+                    System.out.println("Atención interrumpida.");
+                }
+
+                tiempoAtencionProceso -= tiempoAtencion;
+                totalTiempoAtencion += tiempoAtencion;
+
+                if (tiempoAtencionProceso > 0) {
+                    System.out.println("Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
+                    remove();
+                    add(procesoAtender);
+                } else {
+                    System.out.println("Proceso ID: " + idProceso + " completado.");
+                    procesosAtendidos++;
+                    remove();
+                    System.out.println();
+                    imprimirCola();
+                    System.out.println();
+                }
+            }
+        });
+        Thread leerTeclado = new Thread(() -> {
+            Scanner teclado = new Scanner(System.in);
+            while (running) {
+                String q = teclado.nextLine();
+                if (q.equals("q")) {
+                    stopRunning();
+                    break;
+                }
+            }
+            teclado.close();
+        });
+
+        integracionProcesos.start();
+        atencionProcesos1.start();
+        atencionProcesos2.start();
+        leerTeclado.start();
+    }
+
 
     public SimpleProcess procesoAleatorio(int idGenerado){
         Random randProceso = new Random();

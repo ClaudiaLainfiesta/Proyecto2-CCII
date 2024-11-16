@@ -1,0 +1,21 @@
+-------------------------------INICIO------------------------------------
+/*nombreArchivo.java */
+/**
+** Hecho por: Juanito Gutierrez.
+** Carnet: 123456.
+** Sección: BN.
+**/
+/*Descripción: bla bla bla*/
+-------------------------------CONSTRUCTOR-------------------------------
+/**
+* Constructor que ...
+* @param nombreVariable Descripción
+* @return Descripción
+*/
+----------------------------------METODOS----------------------------------
+/**
+* Nombre: nombreMetodo.
+* Método que ...
+* @param nombreVariable Descripción
+* @return Descripción
+*/
