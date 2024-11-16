@@ -8,8 +8,8 @@
 
 import scheduler.scheduling.policies.FCFS;
 import scheduler.scheduling.policies.PP;
+import scheduler.scheduling.policies.RR;
 //import scheduler.scheduling.policies.LCFS;
-//import scheduler.scheduling.policies.RR;
 
 public class ProcessScheduler {
 
@@ -115,9 +115,11 @@ public class ProcessScheduler {
      * @param quantium tiempo fijo de atención.
      * @return ejecución del proceso solicitado.
      */
-    public static void llamarPoliticaSimple2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loopm, Double quantium){
+    public static void llamarPoliticaSimple2(String politica, Double primeraParte, Double segundaParte, Double arith, Double io, Double cond, Double loop, Double quantium){
         if (politica.equals("-rr")) {
             System.out.println("----------Iniciando Proceso Round-Robin----------");
+            RR procesoRequerido = new RR(primeraParte, segundaParte, arith, io, cond, loop, quantium);
+            procesoRequerido.unProcesador();
         } else {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
@@ -138,6 +140,7 @@ public class ProcessScheduler {
         if (politica.equals("-fcfs")) {
             System.out.println("----------Iniciando Proceso First-Come First-Served----------");
             System.out.println("Proceso: Una cola y dos procesadores");
+            System.out.println("Proceso: Una cola y un procesador");
             FCFS procesoRequerido = new FCFS(primeraParte, segundaParte, arith, io, cond, loop);
             procesoRequerido.ejecucionDoble();
         } else if (politica.equals("-lcfs")) {

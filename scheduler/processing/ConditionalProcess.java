@@ -40,6 +40,15 @@ public class ConditionalProcess extends SimpleProcess{
     }
 
     /**
+     * Nombre: setTiempoServicio.
+     * Método que cambio el tiempo de servicio de proceso.
+     * @param tiempoNuevo La nueva cantidad de tiempo.
+     */
+    public void setTiempoServicio(Double tiempoNuevo){
+        this.tiempoServicio = tiempoNuevo;
+    }
+
+    /**
      * Nombre: toString.
      * Método que devuelve una representación en cadena de texto del proceso condicional.
      * @return Una cadena que representa el ID, tiempo de atención y tipo del proceso.

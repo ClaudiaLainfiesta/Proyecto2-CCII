@@ -30,6 +30,7 @@ public class FCFS extends Policy implements Enqueable {
     protected int procesosAtendidos;
     private boolean running;
     private double totalTiempoAtencion = 0.0;
+    private static int idGeneradoGlobal = 0;
 
     //************************* Constructor ***********************************
 
@@ -42,7 +43,6 @@ public class FCFS extends Policy implements Enqueable {
      * @param cont tiempo de atención de procesos condicionales.
      * @param loop tiempo de atención de procesos iterativos.
      */
-    private static int idGeneradoGlobal = 0;
     public FCFS(Double primeraParte, Double segundaParte, Double arith, Double io, Double cont, Double loop) {
         super();
         this.cola = new ConcurrentLinkedQueue<>();
