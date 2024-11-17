@@ -12,6 +12,12 @@ package scheduler.scheduling.policies;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import processing.ArithmeticProcess;
+import processing.ConditionalProcess;
+import processing.IOProcess;
+import processing.LoopProcess;
+import processing.SimpleProcess;
 import scheduler.processing.*;
 
 public class FCFS extends Policy implements Enqueable {
@@ -192,7 +198,9 @@ public class FCFS extends Policy implements Enqueable {
                 SimpleProcess procesoAtender;
                 synchronized (lock) {
                     procesoAtender = next();
-                    remove();
+                    if (procesoAtender != null) {
+                        remove();
+                    }
                 }
                 if (procesoAtender == null) continue;
                 int idProceso = castingID(procesoAtender);
@@ -221,7 +229,9 @@ public class FCFS extends Policy implements Enqueable {
                 SimpleProcess procesoAtender;
                 synchronized (lock) {
                     procesoAtender = next();
-                    remove();
+                    if (procesoAtender != null) {
+                        remove();
+                    }
                 }
                 if (procesoAtender == null) continue;
                 int idProceso = castingID(procesoAtender);
