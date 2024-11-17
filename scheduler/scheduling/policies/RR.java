@@ -1,7 +1,7 @@
 /*RR.java */
 /**
-** Hecho por:
-** Carnet:
+** Hecho por: Maria Claudia Lainfiesta Herrera.
+** Carnet: 24000149.
 ** Seccion: BN.
 **/
 /*Descripción: Clase que realiza la política Round-Robin, los procesos son atendidos en el orden en que llegan a la cola de procesos con un tiempo determinado, si supera ese tiempo vuelve a encolarse.*/
@@ -12,7 +12,6 @@ package scheduler.scheduling.policies;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import scheduler.processing.*;
 
 public class RR extends Policy implements Enqueable {
@@ -164,9 +163,17 @@ public class RR extends Policy implements Enqueable {
         atencionProcesos.start();
         leerTeclado.start();
 
+        try {
+            integracionProcesos.join();
+            atencionProcesos.join();
+            leerTeclado.join();
+        } catch (InterruptedException e) {
+            System.out.println("Hubo un problema de sincronización.");
+        }
     }
 
     public void dosProcesadores(){
+        Object lock = new Object();
         Thread integracionProcesos = new Thread(() -> {
             while(running){
                 long tiempoSleep = tiempoAleatorioRango();
@@ -185,33 +192,35 @@ public class RR extends Policy implements Enqueable {
         });
         Thread atencionProcesos1 = new Thread(() -> {
             while(running){
-                SimpleProcess procesoAtender = next();
+                SimpleProcess procesoAtender;
+                synchronized (lock) {
+                    procesoAtender = next();
+                    remove();
+                }
                 if (procesoAtender == null) continue;
                 int idProceso = castingID(procesoAtender);
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
-                System.out.println("\nAtendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                System.out.println("\nProcesador 1: Atendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
 
                 double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
                 try {
                     Thread.sleep((long) (tiempoAtencion * 1000));
                 } catch (InterruptedException e) {
-                    System.out.println("Atención interrumpida.");
+                    System.out.println("Procesador 1: Atención interrumpida.");
                 }
 
                 tiempoAtencionProceso -= tiempoAtencion;
                 totalTiempoAtencion += tiempoAtencion;
 
                 if (tiempoAtencionProceso > 0) {
-                    System.out.println("Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("Procesador 1: Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
                     castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
-                    remove();
                     add(procesoAtender);
                 } else {
-                    System.out.println("Proceso ID: " + idProceso + " completado.");
+                    System.out.println("Procesador 1: Proceso ID: " + idProceso + " completado.");
                     procesosAtendidos++;
-                    remove();
                     System.out.println();
                     imprimirCola();
                     System.out.println();
@@ -220,33 +229,35 @@ public class RR extends Policy implements Enqueable {
         });
         Thread atencionProcesos2 = new Thread(() -> {
             while(running){
-                SimpleProcess procesoAtender = next();
+                SimpleProcess procesoAtender;
+                synchronized (lock) {
+                    procesoAtender = next();
+                    remove();
+                }
                 if (procesoAtender == null) continue;
                 int idProceso = castingID(procesoAtender);
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
-                System.out.println("\nAtendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                System.out.println("\nProcesador 2: Atendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
 
                 double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
                 try {
                     Thread.sleep((long) (tiempoAtencion * 1000));
                 } catch (InterruptedException e) {
-                    System.out.println("Atención interrumpida.");
+                    System.out.println("Procesador 2: Atención interrumpida.");
                 }
 
                 tiempoAtencionProceso -= tiempoAtencion;
                 totalTiempoAtencion += tiempoAtencion;
 
                 if (tiempoAtencionProceso > 0) {
-                    System.out.println("Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("Procesador 2: Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
                     castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
-                    remove();
                     add(procesoAtender);
                 } else {
-                    System.out.println("Proceso ID: " + idProceso + " completado.");
+                    System.out.println("Procesador 2: Proceso ID: " + idProceso + " completado.");
                     procesosAtendidos++;
-                    remove();
                     System.out.println();
                     imprimirCola();
                     System.out.println();
@@ -271,7 +282,7 @@ public class RR extends Policy implements Enqueable {
         leerTeclado.start();
     }
 
-
+    //************************* Métodos secundarios ***********************************
     public SimpleProcess procesoAleatorio(int idGenerado){
         Random randProceso = new Random();
         int procesoEleccion = randProceso.nextInt(4);

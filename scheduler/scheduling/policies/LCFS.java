@@ -196,6 +196,7 @@ public class LCFS extends Policy implements Enqueable {
     * Método que ejecuta la simulación con dos procesadores, generando y atendiendo procesos.
     */
     public void ejecucionDoble() {
+        Object lock = new Object();
         Thread hiloGeneracion = new Thread(() -> {
             while (activo) {
                 Random randomTiempo = new Random();
@@ -268,8 +269,13 @@ public class LCFS extends Policy implements Enqueable {
     * Método que atiende un proceso desde la pila y simula el tiempo de atención.
     */
     private void atenderProceso() {
+        Object lock = new Object();
         while (activo) {
-            SimpleProcess procesoActual = next();
+            SimpleProcess procesoActual;
+            synchronized (lock) {
+                procesoActual = next();
+                remove();
+            }
             if (procesoActual == null) continue;
             String tipo = obtenerTipoProceso(procesoActual);
             Double duracion = 0.0;
@@ -298,7 +304,6 @@ public class LCFS extends Policy implements Enqueable {
             System.out.println("Atendido proceso ID: " + procesoActual.getId() + " Tipo: " + tipo + " Tiempo de atención: " + duracion + " segundos.");
             tiempoTotalProcesado += duracion;
             procesosCompletados++;
-            remove();
             System.out.println();
             imprimirPila();
             System.out.println();

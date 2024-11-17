@@ -115,7 +115,7 @@ public class ProcessScheduler {
         System.out.println("  ~Tiempo procesos condicionales: " + cond + " seg.");
         System.out.println("  ~Tiempo procesos iterativos: " + loop + " seg.");
         if(quantum != 0.0) {
-            System.out.println("Quantum: " + quantum + " seg.");
+            System.out.println("  ~Quantum: " + quantum + " seg.");
         }
         System.out.println(" Recordatorio: ingresa la letra \"q\" en cualquier momento para salir.");
         System.out.println("-----------------------------------------------------------------------");
