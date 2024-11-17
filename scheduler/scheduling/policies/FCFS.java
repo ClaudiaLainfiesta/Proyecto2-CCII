@@ -276,7 +276,7 @@ public class FCFS extends Policy implements Enqueable {
     /**
      * Nombre: procesoAleatorio.
      * Método que generara un tipo de proceso aleatorio.
-     * @param idGenerado id del nuevo proceso generado
+     * @param idGenerado id del nuevo proceso generado.
      * @return proceso generado.
      */
     public SimpleProcess procesoAleatorio(int idGenerado){
@@ -311,7 +311,7 @@ public class FCFS extends Policy implements Enqueable {
     /**
      * Nombre: castingTipo.
      * Método en el que castea en cada tipo de proceso y obtiene el tipo de proceso que es.
-     * @param proceso proceso al que se casteara
+     * @param proceso proceso al que se casteara.
      * @return tipo de proceso.
      */
     private String castingTipo(SimpleProcess proceso){
@@ -331,7 +331,7 @@ public class FCFS extends Policy implements Enqueable {
     /**
      * Nombre: castingString.
      * Método en el que castea en cada tipo de proceso y su modo de impresión (toString).
-     * @param proceso proceso al que se casteara
+     * @param proceso proceso al que se casteara.
      * @return string del proceso.
      */
     private String castingString(SimpleProcess proceso){
@@ -351,7 +351,7 @@ public class FCFS extends Policy implements Enqueable {
     /**
      * Nombre: castingTiempoAtencion.
      * Método en el que castea en cada tipo de proceso y su tiempo de atención.
-     * @param proceso proceso al que se casteara
+     * @param proceso proceso al que se casteara.
      * @return int del tiempo de atención de cada proceso.
      */
     private Double castingTiempoAtencion(SimpleProcess proceso){
@@ -371,7 +371,7 @@ public class FCFS extends Policy implements Enqueable {
     /**
      * Nombre: castingID.
      * Método en el que castea en cada tipo de proceso y su ID.
-     * @param proceso proceso al que se casteara
+     * @param proceso proceso al que se casteara.
      * @return int del ID de cada proceso.
      */
     private int castingID(SimpleProcess proceso){

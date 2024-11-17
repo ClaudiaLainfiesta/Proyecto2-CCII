@@ -297,7 +297,7 @@ public class RR extends Policy implements Enqueable {
     /**
      * Nombre: procesoAleatorio.
      * Método que generara un tipo de proceso aleatorio.
-     * @param idGenerado id del nuevo proceso generado
+     * @param idGenerado id del nuevo proceso generado.
      * @return proceso generado.
      */
     public SimpleProcess procesoAleatorio(int idGenerado){
