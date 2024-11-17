@@ -192,9 +192,9 @@ public class LCFS extends Policy implements Enqueable {
     }
 
     /**
-    * Nombre: ejecucionDoble.
-    * Método que ejecuta la simulación con dos procesadores, generando y atendiendo procesos.
-    */
+     * Nombre: ejecucionDoble.
+     * Método que ejecuta la simulación con dos procesadores, generando y atendiendo procesos.
+     */
     public void ejecucionDoble() {
         Object lock = new Object();
         Thread hiloGeneracion = new Thread(() -> {
@@ -234,8 +234,8 @@ public class LCFS extends Policy implements Enqueable {
             }
         });
 
-        Thread hiloAtencion1 = new Thread(this::atenderProceso);
-        Thread hiloAtencion2 = new Thread(this::atenderProceso);
+        Thread hiloAtencion1 = new Thread(() -> atenderProceso(lock, "Procesador 1"));
+        Thread hiloAtencion2 = new Thread(() -> atenderProceso(lock, "Procesador 2"));
 
         Thread hiloEntrada = new Thread(() -> {
             Scanner scanner = new Scanner(System.in);
@@ -265,34 +265,37 @@ public class LCFS extends Policy implements Enqueable {
     }
 
     /**
-    * Nombre: atenderProceso.
-    * Método que atiende un proceso desde la pila y simula el tiempo de atención.
-    */
-    private void atenderProceso() {
-        Object lock = new Object();
+     * Nombre: atenderProceso.
+     * Método que atiende un proceso desde la pila y simula el tiempo de atención.
+     * @param lock Objeto de bloqueo para sincronización.
+     * @param nombreProcesador Nombre del procesador que está atendiendo el proceso.
+     */
+    private void atenderProceso(Object lock, String nombreProcesador) {
         while (activo) {
-            SimpleProcess procesoActual;
+            SimpleProcess procesoAtender;
             synchronized (lock) {
-                procesoActual = next();
-                remove();
+                procesoAtender = next();
+                if (procesoAtender != null) {
+                    remove();
+                }
             }
-            if (procesoActual == null) continue;
-            String tipo = obtenerTipoProceso(procesoActual);
+            if (procesoAtender == null) continue;
+            String tipo = obtenerTipoProceso(procesoAtender);
             Double duracion = 0.0;
 
-            if (procesoActual instanceof ArithmeticProcess) {
-                duracion = ((ArithmeticProcess) procesoActual).getTiempoServicio();
-            } else if (procesoActual instanceof IOProcess) {
-                duracion = ((IOProcess) procesoActual).getTiempoServicio();
-            } else if (procesoActual instanceof ConditionalProcess) {
-                duracion = ((ConditionalProcess) procesoActual).getTiempoServicio();
-            } else if (procesoActual instanceof LoopProcess) {
-                duracion = ((LoopProcess) procesoActual).getTiempoServicio();
+            if (procesoAtender instanceof ArithmeticProcess) {
+                duracion = ((ArithmeticProcess) procesoAtender).getTiempoServicio();
+            } else if (procesoAtender instanceof IOProcess) {
+                duracion = ((IOProcess) procesoAtender).getTiempoServicio();
+            } else if (procesoAtender instanceof ConditionalProcess) {
+                duracion = ((ConditionalProcess) procesoAtender).getTiempoServicio();
+            } else if (procesoAtender instanceof LoopProcess) {
+                duracion = ((LoopProcess) procesoAtender).getTiempoServicio();
             }
 
             long duracionMs = (long) (duracion * 1000);
             System.out.println();
-            System.out.println("Atendiendo proceso ID: " + procesoActual.getId() + " Tipo: " + tipo + " Tiempo de atención: " + duracion + " segundos.");
+            System.out.println(nombreProcesador + ": Atendiendo proceso ID: " + procesoAtender.getId() + " Tipo: " + tipo + " Tiempo de atención: " + duracion + " segundos.");
             System.out.println();
             try {
                 Thread.sleep(duracionMs);
@@ -301,7 +304,7 @@ public class LCFS extends Policy implements Enqueable {
             }
 
             System.out.println();
-            System.out.println("Atendido proceso ID: " + procesoActual.getId() + " Tipo: " + tipo + " Tiempo de atención: " + duracion + " segundos.");
+            System.out.println(nombreProcesador + ": Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipo + " Tiempo de atención: " + duracion + " segundos.");
             tiempoTotalProcesado += duracion;
             procesosCompletados++;
             System.out.println();
