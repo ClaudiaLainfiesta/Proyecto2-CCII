@@ -12,12 +12,6 @@ package scheduler.scheduling.policies;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import processing.ArithmeticProcess;
-import processing.ConditionalProcess;
-import processing.IOProcess;
-import processing.LoopProcess;
-import processing.SimpleProcess;
 import scheduler.processing.*;
 
 public class FCFS extends Policy implements Enqueable {
