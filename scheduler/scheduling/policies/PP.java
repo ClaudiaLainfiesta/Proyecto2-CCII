@@ -124,20 +124,20 @@ public class PP extends Policy implements Enqueable {
             }
         });
 
-        generacionProcesos.start();
-        atencionProcesos.start();
-        atencionProceso2.start();
-        recibirSalida.start();
-
-        try {
-            generacionProcesos.join();
-            atencionProcesos.join();
-            atencionProceso2.join();
-            recibirSalida.join();
-        } catch (InterruptedException e) {
-            System.out.println("Hubo un problema en la sincronización.");
+            generacionProcesos.start();
+            atencionProcesos.start();
+            atencionProceso2.start();
+            recibirSalida.start();
+    
+            try {
+                generacionProcesos.join();
+                atencionProcesos.join();
+                atencionProceso2.join();
+                recibirSalida.join();
+            } catch (InterruptedException e) {
+                System.out.println("Hubo un problema en la sincronización.");
+            }
         }
-    }
 
     private void atenderProceso() {
         while (running) {
