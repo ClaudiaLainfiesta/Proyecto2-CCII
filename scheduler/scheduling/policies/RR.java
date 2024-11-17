@@ -2,7 +2,7 @@
 /**
 ** Hecho por: Maria Claudia Lainfiesta Herrera.
 ** Carnet: 24000149.
-** Seccion: BN.
+** Sección: BN.
 **/
 /*Descripción: Clase que realiza la política Round-Robin, los procesos son atendidos en el orden en que llegan a la cola de procesos con un tiempo determinado, si supera ese tiempo vuelve a encolarse.*/
 
@@ -16,7 +16,7 @@ import scheduler.processing.*;
 
 public class RR extends Policy implements Enqueable {
 
-    //************************* Campos ***********************************
+    //**************************** Campos ****************************
 
     protected ConcurrentLinkedQueue<SimpleProcess> cola;
     protected int size;
@@ -33,7 +33,7 @@ public class RR extends Policy implements Enqueable {
     private double totalTiempoAtencion = 0.0;
     private static int idGeneradoGlobal = 0;
 
-    //************************* Constructor ***********************************
+    //************************* Constructor *************************
 
     /**
      * Constructor que inicializa los parámetros para la política de RR.
@@ -59,7 +59,7 @@ public class RR extends Policy implements Enqueable {
         this.running = true;
     }
 
-    //************************* Métodos implementados ***********************************
+    //******************** Métodos implementados ********************
 
     /**
      * Nombre: add.
@@ -93,8 +93,13 @@ public class RR extends Policy implements Enqueable {
         return this.cola.peek();
     }
 
-    //************************* Métodos principales ***********************************
+    //********************* Métodos principales *********************
 
+    /**
+     * Nombre: unProcesador.
+     * Método que realiza la ejecución con un solo procesador de la política RR, en donde se atiende y generan procesos al mismo tiempo.
+     * @return ejecución del programa con política RR.
+     */
     public void unProcesador(){
         Thread integracionProcesos = new Thread(() -> {
             while(running){
@@ -172,6 +177,11 @@ public class RR extends Policy implements Enqueable {
         }
     }
 
+    /**
+     * Nombre: dosProcesadores.
+     * Método que realiza la ejecución con dos procesadores de la política RR, en donde se atiende y generan procesos al mismo tiempo.
+     * @return ejecución del programa con política RR con dos procesadores.
+     */
     public void dosProcesadores(){
         Object lock = new Object();
         Thread integracionProcesos = new Thread(() -> {
@@ -282,7 +292,14 @@ public class RR extends Policy implements Enqueable {
         leerTeclado.start();
     }
 
-    //************************* Métodos secundarios ***********************************
+    //********************* Métodos secundarios *********************
+
+    /**
+     * Nombre: procesoAleatorio.
+     * Método que generara un tipo de proceso aleatorio.
+     * @param idGenerado id del nuevo proceso generado
+     * @return proceso generado.
+     */
     public SimpleProcess procesoAleatorio(int idGenerado){
         Random randProceso = new Random();
         int procesoEleccion = randProceso.nextInt(4);
@@ -298,6 +315,12 @@ public class RR extends Policy implements Enqueable {
         }
         return procesoGenerado;
     }
+
+    /**
+     * Nombre: tiempoAleatorioRango.
+     * Método que generara un tiempo de proceso aleatorio dentro del rango.
+     * @return tiempo aleatorio generado.
+     */
     public long tiempoAleatorioRango(){
         Random randTiempo = new Random();
         long minimoTiempoLong = (long) (this.minimoTiempo * 1000);
@@ -309,7 +332,7 @@ public class RR extends Policy implements Enqueable {
     /**
      * Nombre: castingTipo.
      * Método en el que castea en cada tipo de proceso y obtiene el tipo de proceso que es.
-     * @param proceso proceso al que se casteara
+     * @param proceso proceso al que se casteara.
      * @return tipo de proceso.
      */
     private String castingTipo(SimpleProcess proceso){
@@ -329,7 +352,7 @@ public class RR extends Policy implements Enqueable {
     /**
      * Nombre: castingString.
      * Método en el que castea en cada tipo de proceso y su modo de impresión (toString).
-     * @param proceso proceso al que se casteara
+     * @param proceso proceso al que se casteara.
      * @return string del proceso.
      */
     private String castingString(SimpleProcess proceso){
@@ -346,6 +369,12 @@ public class RR extends Policy implements Enqueable {
         return texto;
     }
 
+    /**
+     * Nombre: castingTiempoAtencion.
+     * Método en el que castea en cada tipo de proceso y su tiempo de atención.
+     * @param proceso proceso al que se casteara.
+     * @return int del tiempo de atención de cada proceso.
+     */
     private Double castingTiempoAtencion(SimpleProcess proceso){
         Double tiempoAtencion = 0.0;
         if(proceso instanceof ArithmeticProcess){
@@ -360,6 +389,12 @@ public class RR extends Policy implements Enqueable {
         return tiempoAtencion;
     }
 
+    /**
+     * Nombre: castingID.
+     * Método en el que castea en cada tipo de proceso y su ID.
+     * @param proceso proceso al que se casteara.
+     * @return int del ID de cada proceso.
+     */
     private int castingID(SimpleProcess proceso){
         int id = 0;
         if(proceso instanceof ArithmeticProcess){
@@ -374,6 +409,12 @@ public class RR extends Policy implements Enqueable {
         return id;
     }
 
+    /**
+     * Nombre: castingSetTiempoAtencion.
+     * Método en el que castea en cada tipo de proceso y cambia su tiempo de atención.
+     * @param proceso proceso al que se casteara.
+     * @param tiempoNuevo tiempo de atención nuevo.
+     */
     private void castingSetTiempoAtencion(SimpleProcess proceso, Double tiempoNuevo){
         if(proceso instanceof ArithmeticProcess){
             ((ArithmeticProcess) proceso).setTiempoServicio(tiempoNuevo);
@@ -406,6 +447,7 @@ public class RR extends Policy implements Enqueable {
 
         System.exit(0);
     }
+
     /**
      * Nombre: imprimirCola.
      * Método que imprime la cola actualizada cada vez que se le mande a llamar.

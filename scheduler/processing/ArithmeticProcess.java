@@ -2,7 +2,7 @@
 /**
 ** Hecho por: Maria Claudia Lainfiesta Herrera.
 ** Carnet: 24000149.
-** Seccion: BN.
+** Sección: BN.
 **/
 /*Descripción: Esta clase representa un proceso aritmético que hereda de la clase SimpleProcess. Su función principal es almacenar el tiempo de servicio para un proceso específico y proporcionar información sobre su tipo y tiempo de atención.*/
 
