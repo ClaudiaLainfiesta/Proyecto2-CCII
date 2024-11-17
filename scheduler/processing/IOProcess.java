@@ -1,7 +1,7 @@
 /*IOProcess.java */
 /**
-** Hecho por: Kevin Jeancarlo De León.
-** Carnet: 24002596.
+** Hecho por: Adriel Levi Argueta Caal.
+** Carnet: 24003171.
 ** Seccion: BN.
 **/
 /*Descripción: Esta clase representa un proceso input/output que hereda de la clase SimpleProcess. Su función principal es almacenar el tiempo de servicio para un proceso específico y proporcionar información sobre su tipo y tiempo de atención.*/

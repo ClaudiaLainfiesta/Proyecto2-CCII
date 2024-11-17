@@ -7,9 +7,9 @@
 /*Descripción: Este es la clase principal que ejecuta el programa. Recibe los argumentos de la línea de comandos, valida los mismos y llama a diferentes métodos según el número y tipo de argumentos proporcionados. Se encarga de gestionar las políticas de planificación y las configuraciones de la simulación.*/
 
 import scheduler.scheduling.policies.FCFS;
+import scheduler.scheduling.policies.LCFS;
 import scheduler.scheduling.policies.PP;
 import scheduler.scheduling.policies.RR;
-//import scheduler.scheduling.policies.LCFS;
 
 public class ProcessScheduler {
 
@@ -94,6 +94,8 @@ public class ProcessScheduler {
             procesoRequerido.ejecucionSimple();
         } else if (politica.equals("-lcfs")) {
             System.out.println("----------Iniciando Proceso Last-Come First-Served----------");
+            LCFS procesoRequerido = new LCFS(primeraParte, segundaParte, arith, io, cond, loop);
+            procesoRequerido.ejecucionSimple();
         } else if (politica.equals("-pp")) {
             System.out.println("----------Iniciando Proceso Priority Policy----------");
             PP procesoRequerido = new PP(primeraParte, segundaParte, arith, io, cond, loop);
@@ -145,6 +147,8 @@ public class ProcessScheduler {
             procesoRequerido.ejecucionDoble();
         } else if (politica.equals("-lcfs")) {
             System.out.println("----------Iniciando Proceso Last-Come First-Served----------");
+            LCFS procesoRequerido = new LCFS(primeraParte, segundaParte, arith, io, cond, loop);
+            procesoRequerido.ejecucionDoble();
         } else if (politica.equals("-pp")) {
             System.out.println("----------Iniciando Proceso Priority Policy----------");
             PP procesoRequerido = new PP(primeraParte, segundaParte, arith, io, cond, loop);

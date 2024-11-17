@@ -3,15 +3,12 @@ Políticas:
 -FCFS: Maria Claudia Lainfiesta Herrera.
 -LCFS: Kevin Jeancarlo De León Castillo.
 -PP: Adriel Levi Argueta Caal.
--RR:
-    Maria Claudia Lainfiesta Herrera.
-    Kevin Jeancarlo De León Castillo.
-    Adriel Levi Argueta Caal.
+-RR: Maria Claudia Lainfiesta Herrera.
 --------------------------------------------------------
 Procesos:
 -ArithmeticProcess: Maria Claudia Lainfiesta Herrera.
 -ConditionalProcess: Adriel Levi Argueta Caal.
--IOProcess: Kevin Jeancarlo De León Castillo.
+-IOProcess: Adriel Levi Argueta Caal.
 -LoopProcess: Kevin Jeancarlo De León Castillo.
 --------------------------------------------------------
 -ProcessScheduler: Maria Claudia Lainfiesta Herrera.
