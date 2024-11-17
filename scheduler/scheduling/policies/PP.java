@@ -1,4 +1,3 @@
-/*FCFS.java */
 /**
 ** Hecho por: Adriel Levi Argueta Caal
 ** Carnet: 24003171.
@@ -22,7 +21,7 @@ public class PP extends Policy implements Enqueable {
     private final double loopTime;
     private final double tiempoMinimo;
     private final double tiempoMaximo;
-    private static int idGeneradoGlobal = 0;
+
     private volatile boolean running; // Controla la ejecución principal
     private int procesosAtendidos;
     private double totalTiempoAtencion = 0.0;
@@ -78,7 +77,7 @@ public class PP extends Policy implements Enqueable {
         }
     }
 
-    public void ejecucion() {
+    public void ejecucion(int tipoProcesador) {
         Thread generacionProcesos = new Thread(() -> {
             int idGenerado = 0;
             Random randTiempo = new Random();
@@ -105,7 +104,7 @@ public class PP extends Policy implements Enqueable {
             }
         });
 
-        Thread atencionProcesos = new Thread(() -> {
+        Runnable procesador = () -> {
             while (running) {
                 SimpleProcess procesoAtender = next();
                 if (procesoAtender == null) continue;
@@ -130,7 +129,7 @@ public class PP extends Policy implements Enqueable {
                                    " Tipo: " + determinarTipo(procesoAtender));
                 imprimirCola();
             }
-        });
+        };
 
         Thread recibirSalida = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
@@ -149,120 +148,37 @@ public class PP extends Policy implements Enqueable {
         });
 
         generacionProcesos.start();
-        atencionProcesos.start();
-        recibirSalida.start();
 
-        try {
-            generacionProcesos.join();
-            atencionProcesos.join();
-            recibirSalida.join();
-        } catch (InterruptedException e) {
-            System.out.println("Hubo un problema de sincronización.");
-        }
-    }
+        if (tipoProcesador == 1) {
+            Thread atencionProcesos = new Thread(procesador);
+            atencionProcesos.start();
 
-    public void ejecucionDoble(){
-        Thread generacionProcesos = new Thread(() -> {
-            int idGenerado = 0;
-            Random randTiempo = new Random();
-            Random randProceso = new Random();        
-
-            while(running){
-                long tiempoRandomLong = (long) ( tiempoMinimo * 1000) +
-                                        randProceso.nextLong() % (long) ((tiempoMaximo - tiempoMinimo) * 1000 + 1);
-                try{
-                    Thread.sleep(tiempoRandomLong);
-                } catch (InterruptedException e){
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-                int procesoEleccion = randProceso.nextInt(4);
-                idGenerado++;
-                SimpleProcess procesoGenerado = generarProcesoAleatorio(idGenerado, procesoEleccion);
-                add(procesoGenerado);
-
-                System.out.println("Generado proceso ID: " + idGenerado + "Tipo:" + determinarTipo(procesoGenerado));
-                imprimirCola();
-            }
-        });
-
-        Thread atencionProcesos = new Thread(() ->{
-            while(running){
-                SimpleProcess procesoAtender = next();
-                if(procesoAtender == null)continue;
-                double tiempoAtencion = obtenerTiempoDeServicio(procesoAtender);
-                System.out.println("\nAtendiendo proceso ID:" + procesoAtender.getId() + 
-                                   "Tipo: " + determinarTipo(procesoAtender) +
-                                   "Tiempo de atencion: " + tiempoAtencion + "segundo.");
-                try{
-                    Thread.sleep((long) (tiempoAtencion * 1000));
-                } catch (InterruptedException e){
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-                
-                totalTiempoAtencion += tiempoAtencion;
-                procesosAtendidos++;
-                remove();
-
-                System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() + 
-                                   "Tipo: " + determinarTipo(procesoAtender));
-            }
-        });
-        Thread atencionProceso2 = new Thread(() -> {
-            while(running){
-                SimpleProcess procesoAtender = next();
-                if(procesoAtender == null) continue;
-
-                double tiempoAtencion = obtenerTiempoDeServicio(procesoAtender);
-            System.out.println("\nAtendiendo proceso ID: " + procesoAtender.getId() + 
-                               "Tipo : " + tiempoAtencion + "segundo.");
-            
             try {
-                Thread.sleep((long)(tiempoAtencion * 1000));
-            } catch (InterruptedException e){
-                Thread.currentThread().interrupt();
-                break;
+                generacionProcesos.join();
+                atencionProcesos.join();
+                recibirSalida.start();
+                recibirSalida.join();
+            } catch (InterruptedException e) {
+                System.out.println("Hubo un problema de sincronización.");
             }
+        } else if (tipoProcesador == 2) {
+            Thread atencionProcesos1 = new Thread(procesador);
+            Thread atencionProcesos2 = new Thread(procesador);
 
-            totalTiempoAtencion += tiempoAtencion;
-            procesosAtendidos++;
-            remove();
+            atencionProcesos1.start();
+            atencionProcesos2.start();
 
-            System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() + 
-                               "Tipo: " + determinarTipo(procesoAtender));
-            imprimirCola();                   
-            }
-        });  
-
-        Thread recibirSalida = new Thread(() -> {
-            Scanner teclado = new Scanner(System.in);
             try {
-                while (running) {
-                    System.out.println("Escribe 'q' para salir:");
-                    String salida = teclado.nextLine();
-                    if (salida.equals("q")) {
-                        stopRunning();
-                        break;
-                    }
-                }
-            } finally {
-                teclado.close();
+                generacionProcesos.join();
+                atencionProcesos1.join();
+                atencionProcesos2.join();
+                recibirSalida.start();
+                recibirSalida.join();
+            } catch (InterruptedException e) {
+                System.out.println("Hubo un problema de sincronización.");
             }
-        });       
-        
-        generacionProcesos.start();
-        atencionProcesos.start();
-        atencionProceso2.start();
-        recibirSalida.start();
-
-        try {
-            generacionProcesos.join();
-            atencionProceso2.join();
-            atencionProcesos.join();
-            recibirSalida.join();
-        } catch (InterruptedException e){
-            System.out.println("Hubo im problema en la sincronizacion.");
+        } else {
+            System.out.println("Parámetro inválido. Usa 1 para un procesador o 2 para doble procesador.");
         }
     }
 
@@ -298,10 +214,6 @@ public class PP extends Policy implements Enqueable {
         System.out.println("Cola de prioridad 3 (ConditionalProcess y LoopProcess): " + colaPrioridad3);
     }
 
-    private synchronized int generarNuevoID(){
-        return ++idGeneradoGlobal;
-    }
-
     public void stopRunning() {
         running = false;
 
@@ -309,8 +221,7 @@ public class PP extends Policy implements Enqueable {
         System.out.println("\n--------Datos finales--------");
         System.out.println("Procesos atendidos: " + procesosAtendidos);
         System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
-        System.out.println("Política utilizada: Priority Policy (PP)");
+        System.out.println("Política utilizada: PP (Prioridad)");
         System.exit(0);
-        
     }
 }
