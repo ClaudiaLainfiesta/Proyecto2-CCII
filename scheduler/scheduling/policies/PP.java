@@ -4,14 +4,12 @@
 ** Carnet: 24003171.
 ** Seccion: BN.
 **/
-
 package scheduler.scheduling.policies;
 
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import scheduler.processing.*;
-
 
 public class PP extends Policy implements Enqueable {
     private final ConcurrentLinkedQueue<SimpleProcess> colaPrioridad1; // IOProcess
@@ -24,11 +22,10 @@ public class PP extends Policy implements Enqueable {
     private final double loopTime;
     private final double tiempoMinimo;
     private final double tiempoMaximo;
-    private volatile boolean ejecutar; // Controla la ejecución del bucle principal
-    private boolean running;
-    private Double totalTiempoAtencion = 0.0;
 
+    private volatile boolean running; // Controla la ejecución principal
     private int procesosAtendidos;
+    private double totalTiempoAtencion = 0.0;
 
     public PP(double tiempoMinimo, double tiempoMaximo, double arithTime, double ioTime, double condTime, double loopTime) {
         super();
@@ -41,9 +38,8 @@ public class PP extends Policy implements Enqueable {
         this.loopTime = loopTime;
         this.tiempoMinimo = tiempoMinimo;
         this.tiempoMaximo = tiempoMaximo;
-        this.ejecutar = true;
-        this.procesosAtendidos = 0;
         this.running = true;
+        this.procesosAtendidos = 0;
     }
 
     @Override
@@ -85,93 +81,81 @@ public class PP extends Policy implements Enqueable {
     public void ejecucion() {
         Thread generacionProcesos = new Thread(() -> {
             int idGenerado = 0;
+            Random randTiempo = new Random();
+            Random randProceso = new Random();
+
             while (running) {
-                Random randTiempo = new Random();
-                Random randProceso = new Random();
-                long primeraParteLong = (long) (tiempoMinimo * 1000);
-                long segundaParteLong = (long) (tiempoMaximo * 1000);
-                long tiempoRandomLong = primeraParteLong + randTiempo.nextLong() % (segundaParteLong - primeraParteLong + 1);
+                long tiempoRandomLong = (long) (tiempoMinimo * 1000) +
+                                        randTiempo.nextLong() % (long) ((tiempoMaximo - tiempoMinimo) * 1000 + 1);
+
                 try {
                     Thread.sleep(tiempoRandomLong);
-                } catch (Exception e) {
-                    System.out.println("Proceso interrumpido");
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
+
                 int procesoEleccion = randProceso.nextInt(4);
                 idGenerado++;
-                SimpleProcess procesoGenerado = null;
-                if (procesoEleccion == 0) {
-                    procesoGenerado = new ArithmeticProcess(idGenerado, this.arithTime);
-                } else if (procesoEleccion == 1) {
-                    procesoGenerado = new IOProcess(idGenerado, this.ioTime);
-                } else if (procesoEleccion == 2) {
-                    procesoGenerado = new ConditionalProcess(idGenerado, this.condTime);
-                } else if (procesoEleccion == 3) {
-                    procesoGenerado = new LoopProcess(idGenerado, this.loopTime);
-                }
-                String tipoProceso = castingTipo(procesoGenerado);
+                SimpleProcess procesoGenerado = generarProcesoAleatorio(idGenerado, procesoEleccion);
                 add(procesoGenerado);
-                System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProceso);
+
+                System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + determinarTipo(procesoGenerado));
                 imprimirCola();
             }
         });
 
         Thread atencionProcesos = new Thread(() -> {
-            int idAtendido = 0;
             while (running) {
                 SimpleProcess procesoAtender = next();
                 if (procesoAtender == null) continue;
-                String tipoProceso = castingTipo(procesoAtender);
-                Double tiempoAtencion = 0.0;
 
-                if (procesoAtender instanceof ArithmeticProcess) {
-                    tiempoAtencion = ((ArithmeticProcess) procesoAtender).getTiempoServicio();
-                    idAtendido = ((ArithmeticProcess) procesoAtender).getId();
-                } else if (procesoAtender instanceof IOProcess) {
-                    tiempoAtencion = ((IOProcess) procesoAtender).getTiempoServicio();
-                    idAtendido = ((IOProcess) procesoAtender).getId();
-                } else if (procesoAtender instanceof ConditionalProcess) {
-                    tiempoAtencion = ((ConditionalProcess) procesoAtender).getTiempoServicio();
-                    idAtendido = ((ConditionalProcess) procesoAtender).getId();
-                } else if (procesoAtender instanceof LoopProcess) {
-                    tiempoAtencion = ((LoopProcess) procesoAtender).getTiempoServicio();
-                    idAtendido = ((LoopProcess) procesoAtender).getId();
-                }
+                double tiempoAtencion = obtenerTiempoDeServicio(procesoAtender);
+                System.out.println("\nAtendiendo proceso ID: " + procesoAtender.getId() +
+                                   " Tipo: " + determinarTipo(procesoAtender) +
+                                   " Tiempo de atención: " + tiempoAtencion + " segundos.");
 
-                long tiempoAtencionMs = (long) (tiempoAtencion * 1000);
-                System.out.println();
-                System.out.println("Atendiendo proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
-                System.out.println();
                 try {
-                    Thread.sleep(tiempoAtencionMs);
-                } catch (Exception e) {
-                    System.out.println("Proceso interrumpido");
+                    Thread.sleep((long) (tiempoAtencion * 1000));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
                 }
-                System.out.println();
-                System.out.println("Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+
                 totalTiempoAtencion += tiempoAtencion;
                 procesosAtendidos++;
                 remove();
-                System.out.println();
+
+                System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() +
+                                   " Tipo: " + determinarTipo(procesoAtender));
                 imprimirCola();
-                System.out.println();
             }
         });
 
         Thread recibirSalida = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
-            while (running) {
-                String salida = teclado.nextLine();
-                if (salida.equals("q")) {
-                    stopRunning();
-                    break;
+            try {
+                while (running) {
+                    System.out.println("Escribe 'q' para salir:");
+                    String salida = teclado.nextLine();
+                    if (salida.equals("q")) {
+                        System.out.println("¿Seguro que deseas salir? (y/n)");
+                        String confirmacion = teclado.nextLine();
+                        if (confirmacion.equalsIgnoreCase("y")) {
+                            stopRunning();
+                            break;
+                        }
+                    }
                 }
+            } finally {
+                teclado.close();
             }
-            teclado.close();
         });
 
         generacionProcesos.start();
         atencionProcesos.start();
         recibirSalida.start();
+
         try {
             generacionProcesos.join();
             atencionProcesos.join();
@@ -180,53 +164,30 @@ public class PP extends Policy implements Enqueable {
             System.out.println("Hubo un problema de sincronización.");
         }
     }
-    private SimpleProcess generarProcesoAleatorio(int id) {
-        Random random = new Random();
-        int tipoProceso = random.nextInt(4);
 
+    private SimpleProcess generarProcesoAleatorio(int id, int tipoProceso) {
         switch (tipoProceso) {
-            case 0:
-                return new ArithmeticProcess(id, arithTime);
-            case 1:
-                return new IOProcess(id, ioTime);
-            case 2:
-                return new ConditionalProcess(id, condTime);
-            case 3:
-                return new LoopProcess(id, loopTime);
-            default:
-                throw new IllegalStateException("Tipo de proceso inesperado: " + tipoProceso);
+            case 0: return new ArithmeticProcess(id, arithTime);
+            case 1: return new IOProcess(id, ioTime);
+            case 2: return new ConditionalProcess(id, condTime);
+            case 3: return new LoopProcess(id, loopTime);
+            default: throw new IllegalStateException("Tipo de proceso inesperado: " + tipoProceso);
         }
     }
 
-    private void simularAtencionProceso(SimpleProcess proceso) {
-        double tiempoServicio = 0.0;
-        if (proceso instanceof ArithmeticProcess) {
-            tiempoServicio = arithTime;
-        } else if (proceso instanceof IOProcess) {
-            tiempoServicio = ioTime;
-        } else if (proceso instanceof ConditionalProcess) {
-            tiempoServicio = condTime;
-        } else if (proceso instanceof LoopProcess) {
-            tiempoServicio = loopTime;
-        }
-
-        try {
-            Thread.sleep((long) (tiempoServicio * 1000));
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+    private double obtenerTiempoDeServicio(SimpleProcess proceso) {
+        if (proceso instanceof ArithmeticProcess) return arithTime;
+        if (proceso instanceof IOProcess) return ioTime;
+        if (proceso instanceof ConditionalProcess) return condTime;
+        if (proceso instanceof LoopProcess) return loopTime;
+        return 0.0;
     }
 
     private String determinarTipo(SimpleProcess proceso) {
-        if (proceso instanceof ArithmeticProcess) {
-            return "ArithmeticProcess";
-        } else if (proceso instanceof IOProcess) {
-            return "IOProcess";
-        } else if (proceso instanceof ConditionalProcess) {
-            return "ConditionalProcess";
-        } else if (proceso instanceof LoopProcess) {
-            return "LoopProcess";
-        }
+        if (proceso instanceof ArithmeticProcess) return "ArithmeticProcess";
+        if (proceso instanceof IOProcess) return "IOProcess";
+        if (proceso instanceof ConditionalProcess) return "ConditionalProcess";
+        if (proceso instanceof LoopProcess) return "LoopProcess";
         return "Desconocido";
     }
 
@@ -236,35 +197,13 @@ public class PP extends Policy implements Enqueable {
         System.out.println("Cola de prioridad 3 (ConditionalProcess y LoopProcess): " + colaPrioridad3);
     }
 
-    public void detener() {
-        ejecutar = false;
-    }
     public void stopRunning() {
-        this.running = false;
-        //int procesosEnCola = this.cola.size();
+        running = false;
 
         double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
-        System.out.println();
-        System.out.println("--------Datos finales--------");
+        System.out.println("\n--------Datos finales--------");
         System.out.println("Procesos atendidos: " + procesosAtendidos);
-        //System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola);
         System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
         System.out.println("Política utilizada: First Come First Served (FCFS)");
-        System.out.println();
-
-        System.exit(0);
-    }
-    private String castingTipo(SimpleProcess proceso){
-        String tipo = "";
-        if(proceso instanceof ArithmeticProcess){
-            tipo = ((ArithmeticProcess) proceso).getTipo();
-        } else if(proceso instanceof IOProcess){
-            tipo = ((IOProcess) proceso).getTipo();
-        } else if(proceso instanceof ConditionalProcess){
-            tipo = ((ConditionalProcess) proceso).getTipo();
-        } else if(proceso instanceof LoopProcess){
-            tipo = ((LoopProcess) proceso).getTipo();
-        }
-        return tipo;
     }
 }
