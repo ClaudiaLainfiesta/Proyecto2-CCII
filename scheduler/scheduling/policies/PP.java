@@ -1,6 +1,6 @@
-/*PP.java */
+/*FCFS.java */
 /**
-** Hecho por: Adriel Levi Argueta Caal.
+** Hecho por: Adriel Levi Argueta Caal
 ** Carnet: 24003171.
 ** Seccion: BN.
 **/
@@ -22,11 +22,10 @@ public class PP extends Policy implements Enqueable {
     private final double loopTime;
     private final double tiempoMinimo;
     private final double tiempoMaximo;
-
+    private static int idGeneradoGlobal = 0;
     private volatile boolean running; // Controla la ejecución principal
     private int procesosAtendidos;
     private double totalTiempoAtencion = 0.0;
-    private int idGeneradoGlobal = 0; // Generador de IDs único
 
     public PP(double tiempoMinimo, double tiempoMaximo, double arithTime, double ioTime, double condTime, double loopTime) {
         super();
@@ -79,8 +78,9 @@ public class PP extends Policy implements Enqueable {
         }
     }
 
-    public void ejecucionDoble() {
+    public void ejecucion() {
         Thread generacionProcesos = new Thread(() -> {
+            int idGenerado = 0;
             Random randTiempo = new Random();
             Random randProceso = new Random();
 
@@ -96,7 +96,7 @@ public class PP extends Policy implements Enqueable {
                 }
 
                 int procesoEleccion = randProceso.nextInt(4);
-                int idGenerado = generarNuevoID();
+                idGenerado++;
                 SimpleProcess procesoGenerado = generarProcesoAleatorio(idGenerado, procesoEleccion);
                 add(procesoGenerado);
 
@@ -105,8 +105,32 @@ public class PP extends Policy implements Enqueable {
             }
         });
 
-        Thread atencionProcesos = new Thread(this::atenderProceso);
-        Thread atencionProceso2 = new Thread(this::atenderProceso);
+        Thread atencionProcesos = new Thread(() -> {
+            while (running) {
+                SimpleProcess procesoAtender = next();
+                if (procesoAtender == null) continue;
+
+                double tiempoAtencion = obtenerTiempoDeServicio(procesoAtender);
+                System.out.println("\nAtendiendo proceso ID: " + procesoAtender.getId() +
+                                   " Tipo: " + determinarTipo(procesoAtender) +
+                                   " Tiempo de atención: " + tiempoAtencion + " segundos.");
+
+                try {
+                    Thread.sleep((long) (tiempoAtencion * 1000));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+
+                totalTiempoAtencion += tiempoAtencion;
+                procesosAtendidos++;
+                remove();
+
+                System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() +
+                                   " Tipo: " + determinarTipo(procesoAtender));
+                imprimirCola();
+            }
+        });
 
         Thread recibirSalida = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
@@ -124,36 +148,79 @@ public class PP extends Policy implements Enqueable {
             }
         });
 
-            generacionProcesos.start();
-            atencionProcesos.start();
-            atencionProceso2.start();
-            recibirSalida.start();
-    
-            try {
-                generacionProcesos.join();
-                atencionProcesos.join();
-                atencionProceso2.join();
-                recibirSalida.join();
-            } catch (InterruptedException e) {
-                System.out.println("Hubo un problema en la sincronización.");
-            }
+        generacionProcesos.start();
+        atencionProcesos.start();
+        recibirSalida.start();
+
+        try {
+            generacionProcesos.join();
+            atencionProcesos.join();
+            recibirSalida.join();
+        } catch (InterruptedException e) {
+            System.out.println("Hubo un problema de sincronización.");
         }
+    }
 
-    private void atenderProceso() {
-        while (running) {
-            SimpleProcess procesoAtender = next();
-            if (procesoAtender == null) continue;
+    public void ejecucionDoble(){
+        Thread generacionProcesos = new Thread(() -> {
+            int idGenerado = 0;
+            Random randTiempo = new Random();
+            Random randProceso = new Random();        
 
-            double tiempoAtencion = obtenerTiempoDeServicio(procesoAtender);
-            System.out.println("\n=== Atendiendo Proceso ===");
-            System.out.println("ID: " + procesoAtender.getId());
-            System.out.println("Tipo: " + determinarTipo(procesoAtender));
-            System.out.println("Tiempo de Atención: " + tiempoAtencion + " segundos");
-            System.out.println("==========================");
+            while(running){
+                long tiempoRandomLong = (long) ( tiempoMinimo * 1000) +
+                                        randProceso.nextLong() % (long) ((tiempoMaximo - tiempoMinimo) * 1000 + 1);
+                try{
+                    Thread.sleep(tiempoRandomLong);
+                } catch (InterruptedException e){
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                int procesoEleccion = randProceso.nextInt(4);
+                idGenerado++;
+                SimpleProcess procesoGenerado = generarProcesoAleatorio(idGenerado, procesoEleccion);
+                add(procesoGenerado);
 
+                System.out.println("Generado proceso ID: " + idGenerado + "Tipo:" + determinarTipo(procesoGenerado));
+                imprimirCola();
+            }
+        });
+
+        Thread atencionProcesos = new Thread(() ->{
+            while(running){
+                SimpleProcess procesoAtender = next();
+                if(procesoAtender == null)continue;
+                double tiempoAtencion = obtenerTiempoDeServicio(procesoAtender);
+                System.out.println("\nAtendiendo proceso ID:" + procesoAtender.getId() + 
+                                   "Tipo: " + determinarTipo(procesoAtender) +
+                                   "Tiempo de atencion: " + tiempoAtencion + "segundo.");
+                try{
+                    Thread.sleep((long) (tiempoAtencion * 1000));
+                } catch (InterruptedException e){
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+                
+                totalTiempoAtencion += tiempoAtencion;
+                procesosAtendidos++;
+                remove();
+
+                System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() + 
+                                   "Tipo: " + determinarTipo(procesoAtender));
+            }
+        });
+        Thread atencionProceso2 = new Thread(() -> {
+            while(running){
+                SimpleProcess procesoAtender = next();
+                if(procesoAtender == null) continue;
+
+                double tiempoAtencion = obtenerTiempoDeServicio(procesoAtender);
+            System.out.println("\nAtendiendo proceso ID: " + procesoAtender.getId() + 
+                               "Tipo : " + tiempoAtencion + "segundo.");
+            
             try {
-                Thread.sleep((long) (tiempoAtencion * 1000));
-            } catch (InterruptedException e) {
+                Thread.sleep((long)(tiempoAtencion * 1000));
+            } catch (InterruptedException e){
                 Thread.currentThread().interrupt();
                 break;
             }
@@ -162,11 +229,40 @@ public class PP extends Policy implements Enqueable {
             procesosAtendidos++;
             remove();
 
-            System.out.println("\n=== Proceso Atendido ===");
-            System.out.println("ID: " + procesoAtender.getId());
-            System.out.println("Tipo: " + determinarTipo(procesoAtender));
-            System.out.println("========================");
-            imprimirCola();
+            System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() + 
+                               "Tipo: " + determinarTipo(procesoAtender));
+            imprimirCola();                   
+            }
+        });  
+
+        Thread recibirSalida = new Thread(() -> {
+            Scanner teclado = new Scanner(System.in);
+            try {
+                while (running) {
+                    System.out.println("Escribe 'q' para salir:");
+                    String salida = teclado.nextLine();
+                    if (salida.equals("q")) {
+                        stopRunning();
+                        break;
+                    }
+                }
+            } finally {
+                teclado.close();
+            }
+        });       
+        
+        generacionProcesos.start();
+        atencionProcesos.start();
+        atencionProceso2.start();
+        recibirSalida.start();
+
+        try {
+            generacionProcesos.join();
+            atencionProceso2.join();
+            atencionProcesos.join();
+            recibirSalida.join();
+        } catch (InterruptedException e){
+            System.out.println("Hubo im problema en la sincronizacion.");
         }
     }
 
@@ -202,7 +298,7 @@ public class PP extends Policy implements Enqueable {
         System.out.println("Cola de prioridad 3 (ConditionalProcess y LoopProcess): " + colaPrioridad3);
     }
 
-    private synchronized int generarNuevoID() {
+    private synchronized int generarNuevoID(){
         return ++idGeneradoGlobal;
     }
 
@@ -210,10 +306,11 @@ public class PP extends Policy implements Enqueable {
         running = false;
 
         double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
-        System.out.println("\n-------- Datos Finales --------");
+        System.out.println("\n--------Datos finales--------");
         System.out.println("Procesos atendidos: " + procesosAtendidos);
         System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
-        System.out.println("Política utilizada: Prioridad por Procesos (PP)");
+        System.out.println("Política utilizada: Priority Policy (PP)");
         System.exit(0);
+        
     }
 }
