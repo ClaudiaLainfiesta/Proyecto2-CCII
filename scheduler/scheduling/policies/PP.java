@@ -139,12 +139,8 @@ public class PP extends Policy implements Enqueable {
                     System.out.println("Escribe 'q' para salir:");
                     String salida = teclado.nextLine();
                     if (salida.equals("q")) {
-                        System.out.println("¿Seguro que deseas salir? (y/n)");
-                        String confirmacion = teclado.nextLine();
-                        if (confirmacion.equalsIgnoreCase("y")) {
-                            stopRunning();
-                            break;
-                        }
+                        stopRunning();
+                        break;
                     }
                 }
             } finally {
@@ -205,5 +201,7 @@ public class PP extends Policy implements Enqueable {
         System.out.println("Procesos atendidos: " + procesosAtendidos);
         System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
         System.out.println("Política utilizada: First Come First Served (FCFS)");
+        System.exit(0);
+        
     }
 }
