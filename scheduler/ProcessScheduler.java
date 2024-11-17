@@ -163,7 +163,7 @@ public class ProcessScheduler {
             System.out.println("------------------ Iniciando Politica Priority Policy ------------------");
             PP procesoRequerido = new PP(primeraParte, segundaParte, arith, io, cond, loop);
             impresionDatosIniciales(politica, procesador, primeraParte, segundaParte, arith, io, cond, loop, quantum);
-            procesoRequerido.ejecucionDoble();
+            procesoRequerido.ejecucion(procesador);
         } else {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
@@ -221,7 +221,7 @@ public class ProcessScheduler {
             System.out.println("------------------ Iniciando Politica Priority Policy ------------------");
             impresionDatosIniciales(politica, procesador, primeraParte, segundaParte, arith, io, cond, loop, quantum);
             PP procesoRequerido = new PP(primeraParte, segundaParte, arith, io, cond, loop);
-            procesoRequerido.ejecucionDoble();
+            procesoRequerido.ejecucion(procesador);
         } else {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
