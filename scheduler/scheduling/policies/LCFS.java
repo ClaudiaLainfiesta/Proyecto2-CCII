@@ -99,6 +99,84 @@ public class LCFS extends Policy implements Enqueable {
      * Método que realiza la ejecución con dos procesadores de la política LCFS, en donde se atiende y generan procesos al mismo tiempo.
      * @return ejecución del programa con política LCFS con dos procesadores.
      */
+    public void ejecucionSimple() {
+        Object lock = new Object();
+        Thread generacionProcesos = new Thread(() -> {
+            while (running) {
+                Random randTiempo = new Random();
+                Random randProceso = new Random();
+                long primeraParteLong = (long) (primeraParte * 1000);
+                long segundaParteLong = (long) (segundaParte * 1000);
+                long tiempoRandomLong = primeraParteLong + randTiempo.nextLong() % (segundaParteLong - primeraParteLong + 1);
+
+                try {
+                    Thread.sleep(tiempoRandomLong);
+                } catch (Exception e) {
+                    synchronized (lock) {
+                        System.out.println("Proceso interrumpido");
+                    }
+                }
+                synchronized (lock) {
+                    int procesoEleccion = randProceso.nextInt(4);
+                    int idGenerado = generarNuevoID();
+                    SimpleProcess procesoGenerado = null;
+
+                    if (procesoEleccion == 0) {
+                        procesoGenerado = new ArithmeticProcess(idGenerado, this.arith);
+                    } else if (procesoEleccion == 1) {
+                        procesoGenerado = new IOProcess(idGenerado, this.io);
+                    } else if (procesoEleccion == 2) {
+                        procesoGenerado = new ConditionalProcess(idGenerado, this.cont);
+                    } else if (procesoEleccion == 3) {
+                        procesoGenerado = new LoopProcess(idGenerado, this.loop);
+                    }
+
+                    String tipoProceso = castingTipo(procesoGenerado);
+                    synchronized (lock) {
+                        add(procesoGenerado);
+                        System.out.println();
+                        System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProceso);
+                        imprimirPila();
+                        System.out.println();
+                    }
+                }
+            }
+        });
+
+        Thread atencionProcesos1 = new Thread(() -> atenderProceso(lock, "Procesador"));
+
+        Thread recibirSalida = new Thread(() -> {
+            Scanner teclado = new Scanner(System.in);
+            while (running) {
+                String salida = teclado.nextLine();
+                if (salida.equals("q")) {
+                    stopRunning();
+                    break;
+                }
+            }
+            teclado.close();
+        });
+
+        generacionProcesos.start();
+        atencionProcesos1.start();
+        recibirSalida.start();
+
+        try {
+            generacionProcesos.join();
+            atencionProcesos1.join();
+            recibirSalida.join();
+        } catch (InterruptedException e) {
+            synchronized (lock) {
+                System.out.println("Hubo un problema de sincronización.");
+            }
+        }
+    }
+
+    /**
+     * Nombre: ejecucionDoble
+     * Método que realiza la ejecución con dos procesadores de la política LCFS, en donde se atiende y generan procesos al mismo tiempo.
+     * @return ejecución del programa con política LCFS con dos procesadores.
+     */
     public void ejecucionDoble() {
         Object lock = new Object();
         Thread generacionProcesos = new Thread(() -> {
@@ -223,7 +301,7 @@ public class LCFS extends Policy implements Enqueable {
                 System.out.println(nombreProcesador + ": Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
                 totalTiempoAtencion += tiempoAtencion;
                 procesosAtendidos++;
-                System.out.println();
+                System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                 imprimirPila();
                 System.out.println();
             }
