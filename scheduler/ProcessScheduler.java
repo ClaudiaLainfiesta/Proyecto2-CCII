@@ -158,12 +158,12 @@ public class ProcessScheduler {
             System.out.println("-------------- Iniciando Politica Last-Come First-Served --------------");
             LCFS procesoRequerido = new LCFS(primeraParte, segundaParte, arith, io, cond, loop);
             impresionDatosIniciales(politica, procesador, primeraParte, segundaParte, arith, io, cond, loop, quantum);
-            procesoRequerido.ejecucionSimple();
+            //procesoRequerido.ejecucionSimple();
         } else if (politica.equals("-pp")) {
             System.out.println("------------------ Iniciando Politica Priority Policy ------------------");
             PP procesoRequerido = new PP(primeraParte, segundaParte, arith, io, cond, loop);
             impresionDatosIniciales(politica, procesador, primeraParte, segundaParte, arith, io, cond, loop, quantum);
-            procesoRequerido.ejecucion(procesador);
+            procesoRequerido.ejecucion();
         } else {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }
@@ -221,7 +221,7 @@ public class ProcessScheduler {
             System.out.println("------------------ Iniciando Politica Priority Policy ------------------");
             impresionDatosIniciales(politica, procesador, primeraParte, segundaParte, arith, io, cond, loop, quantum);
             PP procesoRequerido = new PP(primeraParte, segundaParte, arith, io, cond, loop);
-            procesoRequerido.ejecucion(procesador);
+            procesoRequerido.ejecucionDoble();
         } else {
             System.out.println("Comando no válido. Usa -sintaxis o -help para ver los comandos válidos.");
         }

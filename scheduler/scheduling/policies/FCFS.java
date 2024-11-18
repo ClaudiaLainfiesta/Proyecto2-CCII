@@ -106,11 +106,11 @@ public class FCFS extends Policy implements Enqueable {
                     System.out.println("Proceso interrumpido");
                 }
                 synchronized (lock) {
-                int idGenerado = generarNuevoID();
-                SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
-                String tipoProcesoGenerado = castingTipo(procesoGenerado);
-                Double tiempoAtencionProcesoGenerado = castingTiempoAtencion(procesoGenerado);
-                add(procesoGenerado);
+                    int idGenerado = generarNuevoID();
+                    SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
+                    String tipoProcesoGenerado = castingTipo(procesoGenerado);
+                    Double tiempoAtencionProcesoGenerado = castingTiempoAtencion(procesoGenerado);
+                    add(procesoGenerado);
                     System.out.println();
                     System.out.println("Generado proceso -> ID: " + idGenerado + " | Tiempo de Atencion: " + tiempoAtencionProcesoGenerado + " | Tipo: " + tipoProcesoGenerado);
                     imprimirCola();
@@ -149,6 +149,7 @@ public class FCFS extends Policy implements Enqueable {
                     System.out.println("Procesador: Atendido proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
+                    System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                     imprimirCola();
                     System.out.println();
                 }
@@ -238,6 +239,7 @@ public class FCFS extends Policy implements Enqueable {
                     System.out.println("Procesador 1: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
+                    System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                     imprimirCola();
                     System.out.println();
                 }
@@ -274,6 +276,7 @@ public class FCFS extends Policy implements Enqueable {
                     System.out.println("Procesador 2: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
+                    System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                     imprimirCola();
                     System.out.println();
                 }
