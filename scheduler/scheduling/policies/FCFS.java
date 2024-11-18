@@ -25,9 +25,11 @@ public class FCFS extends Policy implements Enqueable {
     protected Double io;
     protected Double cond;
     protected Double loop;
-    protected int procesosAtendidos;
+    protected int procesosAtendidos = 0;
+    protected int procesosAtendidos2 = 0;
     private boolean running;
     private double totalTiempoAtencion = 0.0;
+    private double totalTiempoAtencion2 = 0.0;
     private static int idGeneradoGlobal = 0;
 
     //************************* Constructor *************************
@@ -50,7 +52,6 @@ public class FCFS extends Policy implements Enqueable {
         this.io = io;
         this.cond = cond;
         this.loop = loop;
-        this.procesosAtendidos = 0;
         this.running = true;
     }
 
@@ -161,7 +162,7 @@ public class FCFS extends Policy implements Enqueable {
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
-                    stopRunning();
+                    stopRunning(1);
                     break;
                 }
             }
@@ -239,7 +240,8 @@ public class FCFS extends Policy implements Enqueable {
                     System.out.println("Procesador 1: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
-                    System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
+                    int totalDosProcesosAtendidos = procesosAtendidos + procesosAtendidos2;
+                    System.out.println("Total de procesos atendidos hasta el momento: " + totalDosProcesosAtendidos + ".");
                     imprimirCola();
                     System.out.println();
                 }
@@ -274,9 +276,10 @@ public class FCFS extends Policy implements Enqueable {
                 synchronized (lock) {
                     System.out.println();
                     System.out.println("Procesador 2: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
-                    totalTiempoAtencion += tiempoAtencionProceso;
-                    procesosAtendidos++;
-                    System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
+                    totalTiempoAtencion2 += tiempoAtencionProceso;
+                    procesosAtendidos2++;
+                    int totalDosProcesosAtendidos = procesosAtendidos + procesosAtendidos2;
+                    System.out.println("Total de procesos atendidos hasta el momento: " + totalDosProcesosAtendidos + ".");
                     imprimirCola();
                     System.out.println();
                 }
@@ -288,7 +291,7 @@ public class FCFS extends Policy implements Enqueable {
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
-                    stopRunning();
+                    stopRunning(2);
                     break;
                 }
             }
@@ -431,16 +434,26 @@ public class FCFS extends Policy implements Enqueable {
      * Método que detiene por completo el programa e imprime los datos finales.
      * @return mensaje en terminal de datos finales.
      */
-    public void stopRunning() {
+    public void stopRunning(int procesador) {
         this.running = false;
         int procesosEnCola = this.cola.size();
-
-        double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
         System.out.println();
         System.out.println("------------------ Datos finales ------------------");
-        System.out.println("Procesos atendidos: " + procesosAtendidos + ".");
-        System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
-        System.out.println("Tiempo promedio de atencion por proceso: " + String.format("%.2f", tiempoPromedio) + " seg.");
+        if(procesador == 2){
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            double tiempoPromedio2 = (procesosAtendidos > 0) ? (totalTiempoAtencion2 / procesosAtendidos) : 0;
+            int totalprocessAtend = procesosAtendidos + procesosAtendidos2;
+            System.out.println("Procesos atendidos: " + totalprocessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Tiempo promedio de atencion por procesador 1: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+            System.out.println("Tiempo promedio de atencion por procesador 2: " + String.format("%.2f", tiempoPromedio2) + " seg.");
+        } else {
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            int totalprocessAtend = procesosAtendidos;
+            System.out.println("Procesos atendidos: " + totalprocessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Tiempo promedio de atencion por procesador: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+        }
         System.out.println("Politica utilizada: First-Come First-Served (FCFS).");
         System.out.println();
 

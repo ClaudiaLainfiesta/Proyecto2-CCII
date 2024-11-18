@@ -28,9 +28,11 @@ public class RR extends Policy implements Enqueable {
     protected Double cond;
     protected Double loop;
     protected Double quantum;
-    protected int procesosAtendidos;
+    protected int procesosAtendidos = 0;
+    protected int procesosAtendidos2 = 0;
     private boolean running;
     private double totalTiempoAtencion = 0.0;
+    private double totalTiempoAtencion2 = 0.0;
     private static int idGeneradoGlobal = 0;
 
     //************************* Constructor *************************
@@ -55,7 +57,6 @@ public class RR extends Policy implements Enqueable {
         this.cond = cond;
         this.loop = loop;
         this.quantum = quantum;
-        this.procesosAtendidos = 0;
         this.running = true;
     }
 
