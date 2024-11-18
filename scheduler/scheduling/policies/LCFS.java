@@ -28,8 +28,10 @@ public class LCFS extends Policy implements Enqueable {
     protected Double cont;
     protected Double loop;
     protected int procesosAtendidos;
+    protected int procesosAtendidos2;
     private boolean running;
     private double totalTiempoAtencion = 0.0;
+    private double totalTiempoAtencion2 = 0.0;
     private static int idGeneradoGlobal = 0;
 
     //************************* Constructor ***********************************
@@ -53,6 +55,7 @@ public class LCFS extends Policy implements Enqueable {
         this.cont = cont;
         this.loop = loop;
         this.procesosAtendidos = 0;
+        this.procesosAtendidos2 = 0;
         this.running = true;
     }
 
@@ -143,14 +146,14 @@ public class LCFS extends Policy implements Enqueable {
             }
         });
 
-        Thread atencionProcesos1 = new Thread(() -> atenderProceso(lock, "Procesador"));
+        Thread atencionProcesos1 = new Thread(() -> atenderProceso(lock, "Procesador", 1));
 
         Thread recibirSalida = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
-                    stopRunning();
+                    stopRunning(1);
                     break;
                 }
             }
@@ -221,15 +224,15 @@ public class LCFS extends Policy implements Enqueable {
             }
         });
 
-        Thread atencionProcesos1 = new Thread(() -> atenderProceso(lock, "Procesador 1"));
-        Thread atencionProcesos2 = new Thread(() -> atenderProceso(lock, "Procesador 2"));
+        Thread atencionProcesos1 = new Thread(() -> atenderProceso(lock, "Procesador 1", 1));
+        Thread atencionProcesos2 = new Thread(() -> atenderProceso(lock, "Procesador 2", 2));
 
         Thread recibirSalida = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
             while (running) {
                 String salida = teclado.nextLine();
                 if (salida.equals("q")) {
-                    stopRunning();
+                    stopRunning(2);
                     break;
                 }
             }
@@ -259,7 +262,7 @@ public class LCFS extends Policy implements Enqueable {
      * @param lock objeto de sincronización.
      * @param nombreProcesador nombre del procesador que atiende el proceso.
      */
-    private void atenderProceso(Object lock, String nombreProcesador) {
+    private void atenderProceso(Object lock, String nombreProcesador, int unoDos) {
         while (running) {
             SimpleProcess procesoAtender;
             synchronized (lock) {
@@ -299,8 +302,13 @@ public class LCFS extends Policy implements Enqueable {
             synchronized (lock) {
                 System.out.println();
                 System.out.println(nombreProcesador + ": Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
-                totalTiempoAtencion += tiempoAtencion;
-                procesosAtendidos++;
+                if(unoDos == 2){
+                    totalTiempoAtencion2 += tiempoAtencion;
+                    procesosAtendidos2++;
+                } else {
+                    totalTiempoAtencion += tiempoAtencion;
+                    procesosAtendidos++;
+                }
                 System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                 imprimirPila();
                 System.out.println();
@@ -315,17 +323,28 @@ public class LCFS extends Policy implements Enqueable {
      * Método que detiene la ejecución del programa e imprime los datos finales.
      * @return mensaje en la terminal con los datos finales.
      */
-    public void stopRunning() {
+    public void stopRunning(int procesador) {
         this.running = false;
         int procesosPendientes = this.pila.size();
-        double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
         System.out.println();
-        System.out.println("--------Datos finales--------");
-        System.out.println("Procesos atendidos: " + procesosAtendidos);
-        System.out.println("Procesos en pila (sin atenderse): " + procesosPendientes);
-        System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
+        System.out.println("------------------ Datos finales ------------------");
+        if(procesador == 2){
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            double tiempoPromedio2 = (procesosAtendidos > 0) ? (totalTiempoAtencion2 / procesosAtendidos2) : 0;
+            int totalprocessAtend = procesosAtendidos + procesosAtendidos2;
+            System.out.println("Procesos atendidos: " + totalprocessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosPendientes + ".");
+            System.out.println("Tiempo promedio de atencion por procesador 1: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+            System.out.println("Tiempo promedio de atencion por procesador 2: " + String.format("%.2f", tiempoPromedio2) + " seg.");
+        } else {
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            int totalprocessAtend = procesosAtendidos;
+            System.out.println("Procesos atendidos: " + totalprocessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosPendientes + ".");
+            System.out.println("Tiempo promedio de atencion por procesador: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+        }
         System.out.println("Política utilizada: Last Come First Served (LCFS)");
-            System.out.println();
+        System.out.println();
         System.exit(0);
     }
 
