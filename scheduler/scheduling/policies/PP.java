@@ -414,19 +414,40 @@ public class PP extends Policy implements Enqueable {
      * @return mensahe en la terminal de datos finales
      */
 
-    public void stopRunning() {
-        running = false;
-        int sizeCola1 = colaPrioridad1.size();
-        int sizeCola2 = colaPrioridad2.size();
-        int sizeCola3 = colaPrioridad3.size();
-        int sizeTotal = sizeCola1 + sizeCola2 + sizeCola3;
-        double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
-        System.out.println("\n--------Datos finales--------");
-        System.out.println("Procesos atendidos: " + procesosAtendidos);
-        System.out.println("Procesos en cola (sin atenderse): " + sizeTotal);
-        System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
-        System.out.println("Política utilizada: Priority Policy (PP)");
-        System.exit(0);
+     public void stopRunning(int procesador) {
+        this.running = false;
+        int procesosEnCola = this.cola.size();
+        System.out.println();
+        System.out.println("------------------ Datos finales ------------------");
         
+        if (procesador == 2) {
+            // Calcular tiempos promedios si hay dos procesadores
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            double tiempoPromedio2 = (procesosAtendidos2 > 0) ? (totalTiempoAtencion2 / procesosAtendidos2) : 0;
+            int totalProcessAtend = procesosAtendidos + procesosAtendidos2;
+            
+            // Imprimir resultados para dos procesadores
+            System.out.println("Procesos atendidos: " + totalProcessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Tiempo promedio de atencion por procesador 1: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+            System.out.println("Tiempo promedio de atencion por procesador 2: " + String.format("%.2f", tiempoPromedio2) + " seg.");
+        } else {
+            // Calcular tiempo promedio para un solo procesador
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            int totalProcessAtend = procesosAtendidos;
+            
+            // Imprimir resultados para un solo procesador
+            System.out.println("Procesos atendidos: " + totalProcessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Tiempo promedio de atencion por procesador: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+        }
+    
+        // Imprimir política utilizada
+        System.out.println("Política utilizada: First-Come First-Served (FCFS).");
+        System.out.println();
+    
+        // Terminar el programa
+        System.exit(0);
     }
+    
 }
