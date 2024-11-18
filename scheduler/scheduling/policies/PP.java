@@ -6,10 +6,11 @@
 /* Descripcion: clase que implementa la politica Priority Policy, donde los procesos son atendidos segun su nivel de priorida*/
 package scheduler.scheduling.policies;
 
-/*Librerias que se utilizan dentro del progreama */
+/*Librerias que se utilizan dentro del programa */
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 import scheduler.processing.*;
 
 
@@ -28,7 +29,9 @@ public class PP extends Policy implements Enqueable {
     private static int idGeneradoGlobal = 0;
     private volatile boolean running; // Controla la ejecución principal
     private int procesosAtendidos;
+    private int procesosAtendidos2;
     private double totalTiempoAtencion = 0.0;
+    private double totalTiempoAtencion2 = 0.0;
 
     /*Constructor */
     public PP(double tiempoMinimo, double tiempoMaximo, double arithTime, double ioTime, double condTime, double loopTime) {
@@ -44,6 +47,7 @@ public class PP extends Policy implements Enqueable {
         this.tiempoMaximo = tiempoMaximo;
         this.running = true;
         this.procesosAtendidos = 0;
+        this.procesosAtendidos2 = 0;
     }
     
     /******** Metodos implementados **********/
@@ -65,10 +69,10 @@ public class PP extends Policy implements Enqueable {
         size++;
         totalProcesses++;
     }
-    /*
+    /**
      * Nombre: remove
      * Metodo que remuve el primer proceso de la cola con mayor prioridad
-     */
+    */
 
     @Override
     public void remove() {
@@ -174,7 +178,7 @@ public class PP extends Policy implements Enqueable {
                     System.out.println("Escribe 'q' para salir:");
                     String salida = teclado.nextLine();
                     if (salida.equals("q")) {
-                        stopRunning();
+                        stopRunning(1);
                         break;
                     }
                 }
@@ -259,7 +263,8 @@ public class PP extends Policy implements Enqueable {
                     System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() + 
                                    " Tipo: " + determinarTipo(procesoAtender) + 
                                    " Tiempo de atencion: " + tiempoAtencion + " segundos.");
-                    System.out.println("Atendidos en total: " + procesosAtendidos);
+                    int total = procesosAtendidos + procesosAtendidos2;
+                    System.out.println("Atendidos en total: " + total);
                     imprimirCola();
                     System.out.println();
                 }
@@ -294,16 +299,17 @@ public class PP extends Policy implements Enqueable {
                 }
 
                 synchronized(lock){
-                    totalTiempoAtencion +=tiempoAtencion;
-                    procesosAtendidos++;
+                    totalTiempoAtencion2 +=tiempoAtencion;
+                    procesosAtendidos2++;
                     remove();
                     System.out.println("\nAtendido proceso ID: " + procesoAtender.getId() +
                                " Tipo: " + determinarTipo(procesoAtender) + " Tiempo atendido: " + obtenerTiempoDeServicio(procesoAtender) + " segundos.");
-                               System.out.println("Procesos atendidos en total: " + procesosAtendidos);
+                    int total = procesosAtendidos + procesosAtendidos2;
+                    System.out.println("Procesos atendidos en total: " + total);
                     imprimirCola();
                 }
             }
-        });  
+        });
 
         Thread recibirSalida = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
@@ -312,15 +318,14 @@ public class PP extends Policy implements Enqueable {
                     System.out.println("Escribe 'q' para salir:");
                     String salida = teclado.nextLine();
                     if (salida.equals("q")) {
-                        stopRunning();
+                        stopRunning(2);
                         break;
                     }
                 }
             } finally {
                 teclado.close();
             }
-        });       
-        
+        });
         generacionProcesos.start();
         atencionProcesos.start();
         atencionProceso2.start();
@@ -416,7 +421,10 @@ public class PP extends Policy implements Enqueable {
 
      public void stopRunning(int procesador) {
         this.running = false;
-        int procesosEnCola = this.cola.size();
+        int colaSize1 = this.colaPrioridad1.size();
+        int colaSize2 = this.colaPrioridad3.size();
+        int colaSize3 = this.colaPrioridad1.size();
+        int  totalSize = colaSize1 + colaSize2 + colaSize3;
         System.out.println();
         System.out.println("------------------ Datos finales ------------------");
         
@@ -428,7 +436,7 @@ public class PP extends Policy implements Enqueable {
             
             // Imprimir resultados para dos procesadores
             System.out.println("Procesos atendidos: " + totalProcessAtend + ".");
-            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + totalSize + ".");
             System.out.println("Tiempo promedio de atencion por procesador 1: " + String.format("%.2f", tiempoPromedio1) + " seg.");
             System.out.println("Tiempo promedio de atencion por procesador 2: " + String.format("%.2f", tiempoPromedio2) + " seg.");
         } else {
@@ -438,12 +446,12 @@ public class PP extends Policy implements Enqueable {
             
             // Imprimir resultados para un solo procesador
             System.out.println("Procesos atendidos: " + totalProcessAtend + ".");
-            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + totalSize + ".");
             System.out.println("Tiempo promedio de atencion por procesador: " + String.format("%.2f", tiempoPromedio1) + " seg.");
         }
     
         // Imprimir política utilizada
-        System.out.println("Política utilizada: First-Come First-Served (FCFS).");
+        System.out.println("Política utilizada: Priority Policy (PP).");
         System.out.println();
     
         // Terminar el programa
