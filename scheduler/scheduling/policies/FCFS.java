@@ -441,7 +441,7 @@ public class FCFS extends Policy implements Enqueable {
         System.out.println("------------------ Datos finales ------------------");
         if(procesador == 2){
             double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
-            double tiempoPromedio2 = (procesosAtendidos > 0) ? (totalTiempoAtencion2 / procesosAtendidos) : 0;
+            double tiempoPromedio2 = (procesosAtendidos > 0) ? (totalTiempoAtencion2 / procesosAtendidos2) : 0;
             int totalprocessAtend = procesosAtendidos + procesosAtendidos2;
             System.out.println("Procesos atendidos: " + totalprocessAtend + ".");
             System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");

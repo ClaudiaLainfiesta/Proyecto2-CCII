@@ -138,7 +138,6 @@ public class RR extends Policy implements Enqueable {
                 int idProceso = castingID(procesoAtender);
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
-                long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
                 synchronized (lock) {
                     System.out.println();
                     System.out.println("\nProcesador: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
@@ -182,7 +181,7 @@ public class RR extends Policy implements Enqueable {
             while (running) {
                 String q = teclado.nextLine();
                 if (q.equals("q")) {
-                    stopRunning();
+                    stopRunning(1);
                     break;
                 }
             }
@@ -244,7 +243,6 @@ public class RR extends Policy implements Enqueable {
                 int idProceso = castingID(procesoAtender);
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
-                long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
                 synchronized (lock) {
                     System.out.println();
                     System.out.println("\nProcesador 1: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
@@ -275,7 +273,8 @@ public class RR extends Policy implements Enqueable {
                         System.out.println();
                         System.out.println("Procesador 1: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                         procesosAtendidos++;
-                        System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
+                        int totalDosProcesosAtendidos = procesosAtendidos + procesosAtendidos2;
+                        System.out.println("Total de procesos atendidos hasta el momento: " + totalDosProcesosAtendidos + ".");
                         imprimirCola();
                         System.out.println();
                     }
@@ -296,7 +295,6 @@ public class RR extends Policy implements Enqueable {
                 int idProceso = castingID(procesoAtender);
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
-                long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
                 synchronized (lock) {
                     System.out.println();
                     System.out.println("\nProcesador 2: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
@@ -311,7 +309,7 @@ public class RR extends Policy implements Enqueable {
                 }
 
                 tiempoAtencionProceso -= tiempoAtencion;
-                totalTiempoAtencion += tiempoAtencion;
+                totalTiempoAtencion2 += tiempoAtencion;
 
                 if (tiempoAtencionProceso > 0) {
                     synchronized (lock) {
@@ -326,8 +324,9 @@ public class RR extends Policy implements Enqueable {
                     synchronized (lock) {
                         System.out.println();
                         System.out.println("Procesador 2: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
-                        procesosAtendidos++;
-                        System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
+                        procesosAtendidos2++;
+                        int totalDosProcesosAtendidos = procesosAtendidos + procesosAtendidos2;
+                        System.out.println("Total de procesos atendidos hasta el momento: " + totalDosProcesosAtendidos + ".");
                         imprimirCola();
                         System.out.println();
                     }
@@ -340,7 +339,7 @@ public class RR extends Policy implements Enqueable {
             while (running) {
                 String q = teclado.nextLine();
                 if (q.equals("q")) {
-                    stopRunning();
+                    stopRunning(2);
                     break;
                 }
             }
@@ -502,16 +501,26 @@ public class RR extends Policy implements Enqueable {
      * Método que detiene por completo el programa e imprime los datos finales.
      * @return mensaje en terminal de datos finales.
      */
-    public void stopRunning() {
+    public void stopRunning(int procesador) {
         this.running = false;
         int procesosEnCola = this.cola.size();
-
-        double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
         System.out.println();
         System.out.println("------------------ Datos finales ------------------");
-        System.out.println("Procesos atendidos: " + procesosAtendidos + ".");
-        System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
-        System.out.println("Tiempo promedio de atención por proceso: " + String.format("%.2f", tiempoPromedio) + " seg.");
+        if(procesador == 2){
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            double tiempoPromedio2 = (procesosAtendidos > 0) ? (totalTiempoAtencion2 / procesosAtendidos2) : 0;
+            int totalprocessAtend = procesosAtendidos + procesosAtendidos2;
+            System.out.println("Procesos atendidos: " + totalprocessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Tiempo promedio de atencion por procesador 1: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+            System.out.println("Tiempo promedio de atencion por procesador 2: " + String.format("%.2f", tiempoPromedio2) + " seg.");
+        } else {
+            double tiempoPromedio1 = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
+            int totalprocessAtend = procesosAtendidos;
+            System.out.println("Procesos atendidos: " + totalprocessAtend + ".");
+            System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+            System.out.println("Tiempo promedio de atencion por procesador: " + String.format("%.2f", tiempoPromedio1) + " seg.");
+        }
         System.out.println("Política utilizada: Round-Robin (RR)");
         System.out.println();
 
