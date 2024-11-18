@@ -114,16 +114,18 @@ public class RR extends Policy implements Enqueable {
                 int idGenerado = generarNuevoID();
                 SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
                 String tipoProcesoGenerado = castingTipo(procesoGenerado);
+                Double tiempoAtencionProcesoGenerado = castingTiempoAtencion(procesoGenerado);
                 add(procesoGenerado);
                     System.out.println();
-                    System.out.println("Generado proceso -> ID: " + idGenerado + " Tipo: " + tipoProcesoGenerado);
+                    System.out.println("Generado proceso -> ID: " + idGenerado + " | Tiempo de Atencion: " + tiempoAtencionProcesoGenerado + " | Tipo: " + tipoProcesoGenerado);
                     imprimirCola();
                     System.out.println();
                 }
             }
         });
+
         Thread atencionProcesos = new Thread(() -> {
-            while(running){
+            while (running) {
                 SimpleProcess procesoAtender;
                 synchronized (lock) {
                     procesoAtender = next();
@@ -138,7 +140,8 @@ public class RR extends Policy implements Enqueable {
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("\nAtendiendo proceso -> ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("\nProcesador: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                    imprimirCola();
                     System.out.println();
                 }
                 double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
@@ -153,21 +156,25 @@ public class RR extends Policy implements Enqueable {
 
                 if (tiempoAtencionProceso > 0) {
                     synchronized (lock) {
-                        System.out.println("Proceso -> ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                        System.out.println();
+                        System.out.println("Procesador: proceso INCOMPLETO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
                         castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
                         add(procesoAtender);
+                        imprimirCola();
+                        System.out.println();
                     }
                 } else {
                     synchronized (lock) {
-                        System.out.println("Proceso -> ID: " + idProceso + " completado.");
-                        procesosAtendidos++;
                         System.out.println();
+                        System.out.println("Procesador: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
+                        procesosAtendidos++;
                         imprimirCola();
                         System.out.println();
                     }
                 }
             }
         });
+
         Thread leerTeclado = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
             while (running) {
@@ -200,24 +207,30 @@ public class RR extends Policy implements Enqueable {
      */
     public void dosProcesadores(){
         Object lock = new Object();
-        Thread integracionProcesos = new Thread(() -> {
+        Thread generacionProcesos = new Thread(() -> {
             while(running){
                 long tiempoSleep = tiempoAleatorioRango();
                 try{
                     Thread.sleep(tiempoSleep);
-                }catch(Exception e){
+                }catch(InterruptedException e){
                     System.out.println("Proceso interrumpido");
                 }
+                synchronized (lock) {
                 int idGenerado = generarNuevoID();
                 SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
                 String tipoProcesoGenerado = castingTipo(procesoGenerado);
+                Double tiempoAtencionProcesoGenerado = castingTiempoAtencion(procesoGenerado);
                 add(procesoGenerado);
-                System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProcesoGenerado);
-                imprimirCola();
+                    System.out.println();
+                    System.out.println("Generado proceso -> ID: " + idGenerado + " | Tiempo de Atencion: " + tiempoAtencionProcesoGenerado + " | Tipo: " + tipoProcesoGenerado);
+                    imprimirCola();
+                    System.out.println();
+                }
             }
         });
+
         Thread atencionProcesos1 = new Thread(() -> {
-            while(running){
+            while (running) {
                 SimpleProcess procesoAtender;
                 synchronized (lock) {
                     procesoAtender = next();
@@ -230,33 +243,45 @@ public class RR extends Policy implements Enqueable {
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
-                System.out.println("\nProcesador 1: Atendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
-
+                synchronized (lock) {
+                    System.out.println();
+                    System.out.println("\nProcesador 1: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                    imprimirCola();
+                    System.out.println();
+                }
                 double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
                 try {
                     Thread.sleep((long) (tiempoAtencion * 1000));
                 } catch (InterruptedException e) {
-                    System.out.println("Procesador 1: Atención interrumpida.");
+                    System.out.println("Atención interrumpida.");
                 }
 
                 tiempoAtencionProceso -= tiempoAtencion;
                 totalTiempoAtencion += tiempoAtencion;
 
                 if (tiempoAtencionProceso > 0) {
-                    System.out.println("Procesador 1: Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
-                    castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
-                    add(procesoAtender);
+                    synchronized (lock) {
+                        System.out.println();
+                        System.out.println("Procesador 1: proceso INCOMPLETO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                        castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
+                        add(procesoAtender);
+                        imprimirCola();
+                        System.out.println();
+                    }
                 } else {
-                    System.out.println("Procesador 1: Proceso ID: " + idProceso + " completado.");
-                    procesosAtendidos++;
-                    System.out.println();
-                    imprimirCola();
-                    System.out.println();
+                    synchronized (lock) {
+                        System.out.println();
+                        System.out.println("Procesador 1: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
+                        procesosAtendidos++;
+                        imprimirCola();
+                        System.out.println();
+                    }
                 }
             }
         });
+
         Thread atencionProcesos2 = new Thread(() -> {
-            while(running){
+            while (running) {
                 SimpleProcess procesoAtender;
                 synchronized (lock) {
                     procesoAtender = next();
@@ -269,31 +294,43 @@ public class RR extends Policy implements Enqueable {
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
-                System.out.println("\nProcesador 2: Atendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
-
+                synchronized (lock) {
+                    System.out.println();
+                    System.out.println("\nProcesador 2: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                    imprimirCola();
+                    System.out.println();
+                }
                 double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
                 try {
                     Thread.sleep((long) (tiempoAtencion * 1000));
                 } catch (InterruptedException e) {
-                    System.out.println("Procesador 2: Atención interrumpida.");
+                    System.out.println("Atención interrumpida.");
                 }
 
                 tiempoAtencionProceso -= tiempoAtencion;
                 totalTiempoAtencion += tiempoAtencion;
 
                 if (tiempoAtencionProceso > 0) {
-                    System.out.println("Procesador 2: Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
-                    castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
-                    add(procesoAtender);
+                    synchronized (lock) {
+                        System.out.println();
+                        System.out.println("Procesador 2: proceso INCOMPLETO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                        castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
+                        add(procesoAtender);
+                        imprimirCola();
+                        System.out.println();
+                    }
                 } else {
-                    System.out.println("Procesador 2: Proceso ID: " + idProceso + " completado.");
-                    procesosAtendidos++;
-                    System.out.println();
-                    imprimirCola();
-                    System.out.println();
+                    synchronized (lock) {
+                        System.out.println();
+                        System.out.println("Procesador 2: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
+                        procesosAtendidos++;
+                        imprimirCola();
+                        System.out.println();
+                    }
                 }
             }
         });
+
         Thread leerTeclado = new Thread(() -> {
             Scanner teclado = new Scanner(System.in);
             while (running) {
@@ -306,10 +343,19 @@ public class RR extends Policy implements Enqueable {
             teclado.close();
         });
 
-        integracionProcesos.start();
+        generacionProcesos.start();
         atencionProcesos1.start();
         atencionProcesos2.start();
         leerTeclado.start();
+
+        try {
+            generacionProcesos.join();
+            atencionProcesos1.join();
+            atencionProcesos2.join();
+            leerTeclado.join();
+        } catch (InterruptedException e) {
+            System.out.println("Hubo un problema de sincronización.");
+        }
     }
 
     //********************* Métodos secundarios *********************
@@ -475,7 +521,7 @@ public class RR extends Policy implements Enqueable {
      */
     public void imprimirCola() {
         if (cola.isEmpty()) {
-            System.out.println("La cola está vacía.");
+            System.out.println("Procesos en la cola: [ VACIO ]");
         } else {
             System.out.print("Procesos en la cola: ");
             for (SimpleProcess proceso : cola) {

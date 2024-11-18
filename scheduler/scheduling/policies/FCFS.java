@@ -146,7 +146,7 @@ public class FCFS extends Policy implements Enqueable {
                 }
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("Procesador: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
+                    System.out.println("Procesador: Atendido proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
                     imprimirCola();
