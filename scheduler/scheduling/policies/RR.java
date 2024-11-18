@@ -12,6 +12,12 @@ package scheduler.scheduling.policies;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import processing.ArithmeticProcess;
+import processing.ConditionalProcess;
+import processing.IOProcess;
+import processing.LoopProcess;
+import processing.SimpleProcess;
 import scheduler.processing.*;
 
 public class RR extends Policy implements Enqueable {
@@ -168,6 +174,7 @@ public class RR extends Policy implements Enqueable {
                         System.out.println();
                         System.out.println("Procesador: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                         procesosAtendidos++;
+                        System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                         imprimirCola();
                         System.out.println();
                     }
@@ -273,6 +280,7 @@ public class RR extends Policy implements Enqueable {
                         System.out.println();
                         System.out.println("Procesador 1: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                         procesosAtendidos++;
+                        System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                         imprimirCola();
                         System.out.println();
                     }
@@ -324,6 +332,7 @@ public class RR extends Policy implements Enqueable {
                         System.out.println();
                         System.out.println("Procesador 2: proceso COMPLETADO -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                         procesosAtendidos++;
+                        System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
                         imprimirCola();
                         System.out.println();
                     }
