@@ -302,14 +302,17 @@ public class LCFS extends Policy implements Enqueable {
             synchronized (lock) {
                 System.out.println();
                 System.out.println(nombreProcesador + ": Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencion + " segundos.");
+                int totalProcesosUnido = 0;
                 if(unoDos == 2){
                     totalTiempoAtencion2 += tiempoAtencion;
                     procesosAtendidos2++;
+                    totalProcesosUnido = procesosAtendidos + procesosAtendidos2;
                 } else {
                     totalTiempoAtencion += tiempoAtencion;
                     procesosAtendidos++;
+                    totalProcesosUnido = procesosAtendidos + procesosAtendidos2;
                 }
-                System.out.println("Total de procesos atendidos hasta el momento: " + this.procesosAtendidos + ".");
+                System.out.println("Total de procesos atendidos hasta el momento: " + totalProcesosUnido + ".");
                 imprimirPila();
                 System.out.println();
             }
