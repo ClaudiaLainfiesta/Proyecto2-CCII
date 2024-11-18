@@ -30,8 +30,6 @@ public class FCFS extends Policy implements Enqueable {
     private double totalTiempoAtencion = 0.0;
     private static int idGeneradoGlobal = 0;
 
-    private static final Object lockPrint = new Object();
-
     //************************* Constructor *************************
 
     /**
@@ -111,9 +109,10 @@ public class FCFS extends Policy implements Enqueable {
                 int idGenerado = generarNuevoID();
                 SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
                 String tipoProcesoGenerado = castingTipo(procesoGenerado);
+                Double tiempoAtencionProcesoGenerado = castingTiempoAtencion(procesoGenerado);
                 add(procesoGenerado);
                     System.out.println();
-                    System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProcesoGenerado);
+                    System.out.println("Generado proceso -> ID: " + idGenerado + " | Tiempo de Atencion: " + tiempoAtencionProcesoGenerado + " | Tipo: " + tipoProcesoGenerado);
                     imprimirCola();
                     System.out.println();
                 }
@@ -136,17 +135,18 @@ public class FCFS extends Policy implements Enqueable {
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("\nProcesador 1: Atendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("\nProcesador: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                    imprimirCola();
                     System.out.println();
                 }
                 try {
                     Thread.sleep(tiempoAtencionProcesoMs);
                 } catch (InterruptedException e) {
-                    System.out.println("Procesador 1: Proceso interrumpido");
+                    System.out.println("Procesador: Proceso interrumpido");
                 }
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("Procesador 1: Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("Procesador: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
                     imprimirCola();
@@ -175,7 +175,7 @@ public class FCFS extends Policy implements Enqueable {
             atencionProcesos.join();
             recibirSalida.join();
         } catch (InterruptedException e) {
-            System.out.println("Hubo un problema de sincronización.");
+            System.out.println("Hubo un problema de sincronizacion.");
         }
     }
 
@@ -198,9 +198,10 @@ public class FCFS extends Policy implements Enqueable {
                 int idGenerado = generarNuevoID();
                 SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
                 String tipoProcesoGenerado = castingTipo(procesoGenerado);
+                Double tiempoAtencionProcesoGenerado = castingTiempoAtencion(procesoGenerado);
                 add(procesoGenerado);
                     System.out.println();
-                    System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProcesoGenerado);
+                    System.out.println("Generado proceso -> ID: " + idGenerado + " | Tiempo de Atencion: " + tiempoAtencionProcesoGenerado + " | Tipo: " + tipoProcesoGenerado);
                     imprimirCola();
                     System.out.println();
                 }
@@ -223,7 +224,8 @@ public class FCFS extends Policy implements Enqueable {
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("\nProcesador 1: Atendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("\nProcesador 1: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                    imprimirCola();
                     System.out.println();
                 }
                 try {
@@ -233,7 +235,7 @@ public class FCFS extends Policy implements Enqueable {
                 }
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("Procesador 1: Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("Procesador 1: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
                     imprimirCola();
@@ -258,7 +260,8 @@ public class FCFS extends Policy implements Enqueable {
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("\nProcesador 2: Atendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("\nProcesador 2: Atendiendo proceso -> ID: " + idProceso + " | Tipo: " + tipoProceso + " | Tiempo restante: " + tiempoAtencionProceso + " seg.");
+                    imprimirCola();
                     System.out.println();
                 }
                 try {
@@ -268,7 +271,7 @@ public class FCFS extends Policy implements Enqueable {
                 }
                 synchronized (lock) {
                     System.out.println();
-                    System.out.println("Procesador 2: Atendido proceso ID: " + procesoAtender.getId() + " Tipo: " + tipoProceso + " Tiempo de atención: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println("Procesador 2: Atendido proceso -> ID: " + procesoAtender.getId() + " | Tipo: " + tipoProceso + " | Tiempo de Atencion: " + tiempoAtencionProceso + " seg.");
                     totalTiempoAtencion += tiempoAtencionProceso;
                     procesosAtendidos++;
                     imprimirCola();
@@ -299,7 +302,7 @@ public class FCFS extends Policy implements Enqueable {
             atencionProcesos2.join();
             recibirSalida.join();
         } catch (InterruptedException e) {
-            System.out.println("Hubo un problema de sincronización.");
+            System.out.println("Hubo un problema de sincronizacion.");
         }
     }
 
@@ -434,8 +437,8 @@ public class FCFS extends Policy implements Enqueable {
         System.out.println("------------------ Datos finales ------------------");
         System.out.println("Procesos atendidos: " + procesosAtendidos + ".");
         System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
-        System.out.println("Tiempo promedio de atención por proceso: " + String.format("%.2f", tiempoPromedio) + " seg.");
-        System.out.println("Política utilizada: First-Come First-Served (FCFS).");
+        System.out.println("Tiempo promedio de atencion por proceso: " + String.format("%.2f", tiempoPromedio) + " seg.");
+        System.out.println("Politica utilizada: First-Come First-Served (FCFS).");
         System.out.println();
 
         System.exit(0);
@@ -448,7 +451,7 @@ public class FCFS extends Policy implements Enqueable {
      */
     public void imprimirCola() {
         if (cola.isEmpty()) {
-            System.out.println("La cola está vacía.");
+            System.out.println("Procesos en la cola: [ VACIO ]");
         } else {
             System.out.print("Procesos en la cola: ");
             for (SimpleProcess proceso : cola) {

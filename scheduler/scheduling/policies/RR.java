@@ -101,32 +101,46 @@ public class RR extends Policy implements Enqueable {
      * @return ejecución del programa con política RR.
      */
     public void unProcesador(){
-        Thread integracionProcesos = new Thread(() -> {
+        Object lock = new Object();
+        Thread generacionProcesos = new Thread(() -> {
             while(running){
                 long tiempoSleep = tiempoAleatorioRango();
                 try{
                     Thread.sleep(tiempoSleep);
-                }catch(Exception e){
+                }catch(InterruptedException e){
                     System.out.println("Proceso interrumpido");
                 }
+                synchronized (lock) {
                 int idGenerado = generarNuevoID();
                 SimpleProcess procesoGenerado = procesoAleatorio(idGenerado);
                 String tipoProcesoGenerado = castingTipo(procesoGenerado);
                 add(procesoGenerado);
-                System.out.println("Generado proceso ID: " + idGenerado + " Tipo: " + tipoProcesoGenerado);
-                imprimirCola();
+                    System.out.println();
+                    System.out.println("Generado proceso -> ID: " + idGenerado + " Tipo: " + tipoProcesoGenerado);
+                    imprimirCola();
+                    System.out.println();
+                }
             }
         });
         Thread atencionProcesos = new Thread(() -> {
             while(running){
-                SimpleProcess procesoAtender = next();
+                SimpleProcess procesoAtender;
+                synchronized (lock) {
+                    procesoAtender = next();
+                    if (procesoAtender != null) {
+                        remove();
+                    }
+                }
                 if (procesoAtender == null) continue;
                 int idProceso = castingID(procesoAtender);
                 Double tiempoAtencionProceso = castingTiempoAtencion(procesoAtender);
                 String tipoProceso = castingTipo(procesoAtender);
                 long tiempoAtencionProcesoMs = (long) (tiempoAtencionProceso * 1000);
-                System.out.println("\nAtendiendo proceso ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
-
+                synchronized (lock) {
+                    System.out.println();
+                    System.out.println("\nAtendiendo proceso -> ID: " + idProceso + " Tipo: " + tipoProceso + " Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                    System.out.println();
+                }
                 double tiempoAtencion = Math.min(quantum, tiempoAtencionProceso);
                 try {
                     Thread.sleep((long) (tiempoAtencion * 1000));
@@ -138,17 +152,19 @@ public class RR extends Policy implements Enqueable {
                 totalTiempoAtencion += tiempoAtencion;
 
                 if (tiempoAtencionProceso > 0) {
-                    System.out.println("Proceso ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
-                    castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
-                    remove();
-                    add(procesoAtender);
+                    synchronized (lock) {
+                        System.out.println("Proceso -> ID: " + idProceso + " incompleto. Tiempo restante: " + tiempoAtencionProceso + " segundos.");
+                        castingSetTiempoAtencion(procesoAtender , tiempoAtencionProceso);
+                        add(procesoAtender);
+                    }
                 } else {
-                    System.out.println("Proceso ID: " + idProceso + " completado.");
-                    procesosAtendidos++;
-                    remove();
-                    System.out.println();
-                    imprimirCola();
-                    System.out.println();
+                    synchronized (lock) {
+                        System.out.println("Proceso -> ID: " + idProceso + " completado.");
+                        procesosAtendidos++;
+                        System.out.println();
+                        imprimirCola();
+                        System.out.println();
+                    }
                 }
             }
         });
@@ -164,12 +180,12 @@ public class RR extends Policy implements Enqueable {
             teclado.close();
         });
 
-        integracionProcesos.start();
+        generacionProcesos.start();
         atencionProcesos.start();
         leerTeclado.start();
 
         try {
-            integracionProcesos.join();
+            generacionProcesos.join();
             atencionProcesos.join();
             leerTeclado.join();
         } catch (InterruptedException e) {
@@ -442,10 +458,10 @@ public class RR extends Policy implements Enqueable {
 
         double tiempoPromedio = (procesosAtendidos > 0) ? (totalTiempoAtencion / procesosAtendidos) : 0;
         System.out.println();
-        System.out.println("--------Datos finales--------");
-        System.out.println("Procesos atendidos: " + procesosAtendidos);
-        System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola);
-        System.out.println("Tiempo promedio de atención por proceso: " + tiempoPromedio + " segundos");
+        System.out.println("------------------ Datos finales ------------------");
+        System.out.println("Procesos atendidos: " + procesosAtendidos + ".");
+        System.out.println("Procesos en cola (sin atenderse): " + procesosEnCola + ".");
+        System.out.println("Tiempo promedio de atención por proceso: " + String.format("%.2f", tiempoPromedio) + " seg.");
         System.out.println("Política utilizada: Round-Robin (RR)");
         System.out.println();
 
